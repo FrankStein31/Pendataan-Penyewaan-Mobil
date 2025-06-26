@@ -132,6 +132,13 @@ if(isset($_POST['selesai'])) {
   mysqli_query($conn, "UPDATE transaksi SET status_sewa='Selesai' WHERE id_transaksi='$id'");
   header("Location: transaksi.php");
 }
+
+// Query total pendapatan hari ini
+$qPendapatanHariIni = mysqli_query($conn, "SELECT SUM(total_keseluruhan) as total FROM transaksi WHERE DATE(tanggal_mulai) = CURDATE()");
+$dataPendapatanHariIni = mysqli_fetch_assoc($qPendapatanHariIni);
+// Query total pendapatan bulan ini
+$qPendapatanBulanIni = mysqli_query($conn, "SELECT SUM(total_keseluruhan) as total FROM transaksi WHERE YEAR(tanggal_mulai) = YEAR(CURDATE()) AND MONTH(tanggal_mulai) = MONTH(CURDATE())");
+$dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -617,6 +624,24 @@ if(isset($_POST['selesai'])) {
             </div>
             <div class="card-body px-0 pt-0 pb-2">
               <div class="p-4">
+                <div class="row mb-4">
+                  <div class="col-md-6 mb-2">
+                    <div class="card shadow-sm">
+                      <div class="card-body text-center">
+                        <div class="text-xs text-muted mb-1">Total Pendapatan Hari Ini</div>
+                        <h3 class="text-success mb-0">Rp <?= number_format($dataPendapatanHariIni['total'] ?? 0,0,',','.') ?></h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <div class="card shadow-sm">
+                      <div class="card-body text-center">
+                        <div class="text-xs text-muted mb-1">Total Pendapatan Bulan Ini</div>
+                        <h3 class="text-primary mb-0">Rp <?= number_format($dataPendapatanBulanIni['total'] ?? 0,0,',','.') ?></h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <!-- Filter Section -->
                 <div class="card shadow-sm mb-4">
                   <div class="card-body">
@@ -642,25 +667,51 @@ if(isset($_POST['selesai'])) {
                           ?>
                         </select>
                       </div>
-                      <div class="col-md-2 d-flex align-items-end">
+                      <div class="col-md-3">
+                        <label class="form-label">Penyewa</label>
+                        <select class="form-control select2-filter" name="id_penyewa">
+                          <option value="">Semua Penyewa</option>
+                          <?php
+                          $q_penyewa = mysqli_query($conn, "SELECT * FROM penyewa ORDER BY nama_penyewa");
+                          while($d_penyewa = mysqli_fetch_array($q_penyewa)) {
+                            $selected = (isset($_GET['id_penyewa']) && $_GET['id_penyewa'] == $d_penyewa['id_penyewa']) ? 'selected' : '';
+                            echo "<option value='$d_penyewa[id_penyewa]' $selected>$d_penyewa[nama_penyewa]</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
+                      <div class="col-md-2 d-flex align-items-end gap-2">
                         <button type="submit" class="btn btn-primary btn-sm">
                           <i class="fa fa-search me-2"></i>Cari
                         </button>
+                        <?php if(
+                          (isset($_GET['start_date']) && $_GET['start_date'] != date('Y-m-01')) ||
+                          (isset($_GET['end_date']) && $_GET['end_date'] != date('Y-m-t')) ||
+                          (isset($_GET['id_mobil']) && $_GET['id_mobil'] != '') ||
+                          (isset($_GET['id_penyewa']) && $_GET['id_penyewa'] != '')
+                        ) { ?>
+                        <a href="transaksi.php" class="btn btn-secondary btn-sm">Reset</a>
+                        <?php } ?>
                       </div>
                     </form>
                   </div>
                 </div>
+                
 
                 <?php
                 // Default filter untuk bulan ini
                 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
                 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
                 $id_mobil = isset($_GET['id_mobil']) ? $_GET['id_mobil'] : '';
+                $id_penyewa = isset($_GET['id_penyewa']) ? $_GET['id_penyewa'] : '';
 
                 $where = "WHERE 1=1";
                 $where .= " AND DATE(t.tanggal_mulai) BETWEEN '$start_date' AND '$end_date'";
                 if($id_mobil != '') {
                   $where .= " AND t.id_mobil='$id_mobil'";
+                }
+                if($id_penyewa != '') {
+                  $where .= " AND t.id_penyewa='$id_penyewa'";
                 }
 
                 $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver 
@@ -977,6 +1028,7 @@ if(isset($_POST['selesai'])) {
           </div>
         </div>
       </div>
+      
     </div>
   </main>
 

@@ -23,6 +23,15 @@ $dataTotalPenyewa = mysqli_fetch_assoc($qTotalPenyewa);
 // Hitung total pendapatan
 $qTotalPendapatan = mysqli_query($conn, "SELECT SUM(total_keseluruhan) as total FROM transaksi");
 $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
+// Pendapatan hari ini
+$qPendapatanHariIni = mysqli_query($conn, "SELECT SUM(total_keseluruhan) as total FROM transaksi WHERE DATE(tanggal_mulai) = CURDATE()");
+$dataPendapatanHariIni = mysqli_fetch_assoc($qPendapatanHariIni);
+// Pendapatan bulan ini
+$qPendapatanBulanIni = mysqli_query($conn, "SELECT SUM(total_keseluruhan) as total FROM transaksi WHERE YEAR(tanggal_mulai) = YEAR(CURDATE()) AND MONTH(tanggal_mulai) = MONTH(CURDATE())");
+$dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
+// Pendapatan tahun ini
+$qPendapatanTahunIni = mysqli_query($conn, "SELECT SUM(total_keseluruhan) as total FROM transaksi WHERE YEAR(tanggal_mulai) = YEAR(CURDATE())");
+$dataPendapatanTahunIni = mysqli_fetch_assoc($qPendapatanTahunIni);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,9 +39,10 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Sistem Pendataan Penyewaan Mobil</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <link href="styling/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="styling/assets/css/nucleo-svg.css" rel="stylesheet" />
-  <link href="styling/assets/css/argon-dashboard.css" rel="stylesheet" />
+  <link href="styling/assets/css/argon-dashboard.css?v=2.0.4" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -151,7 +161,27 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
           <div class="card">
             <div class="card-body text-center">
               <h5 class="mb-0">Total Pendapatan</h5>
-              <h2 class="text-success">Rp <?= number_format($dataTotalPendapatan['total'],0,',','.') ?></h2>
+              <h2 class="text-success">Rp <?= number_format($dataTotalPendapatan['total'] ?? 0,0,',','.') ?></h2>
+              <div class="row mt-3">
+                <div class="col-md-4 col-12 mb-2 mb-md-0">
+                  <div class="bg-light rounded p-2">
+                    <div class="text-xs text-muted">Hari Ini</div>
+                    <div class="fw-bold text-success">Rp <?= number_format($dataPendapatanHariIni['total'] ?? 0,0,',','.') ?></div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12 mb-2 mb-md-0">
+                  <div class="bg-light rounded p-2">
+                    <div class="text-xs text-muted">Bulan Ini</div>
+                    <div class="fw-bold text-primary">Rp <?= number_format($dataPendapatanBulanIni['total'] ?? 0,0,',','.') ?></div>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
+                  <div class="bg-light rounded p-2">
+                    <div class="text-xs text-muted">Tahun Ini</div>
+                    <div class="fw-bold text-warning">Rp <?= number_format($dataPendapatanTahunIni['total'] ?? 0,0,',','.') ?></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -159,76 +189,100 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
 
       <div class="row mt-4">
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0">
               <h6>Grafik Transaksi Mingguan</h6>
             </div>
-            <div class="card-body">
-              <canvas id="transaksiMingguanChart" class="chart-canvas" height="300"></canvas>
+            <div class="card-body p-3">
+              <div class="chart">
+                <canvas id="transaksiMingguanChart" class="chart-canvas" height="300"></canvas>
+              </div>
             </div>
           </div>
         </div>
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0">
               <h6>Grafik Transaksi Bulanan</h6>
             </div>
-            <div class="card-body">
-              <canvas id="transaksiBulananChart" class="chart-canvas" height="300"></canvas>
+            <div class="card-body p-3">
+               <div class="chart">
+                <canvas id="transaksiBulananChart" class="chart-canvas" height="300"></canvas>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="row">
+      <div class="row mt-2">
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0">
               <h6>Grafik Transaksi Tahunan</h6>
             </div>
-            <div class="card-body">
-              <canvas id="transaksiTahunanChart" class="chart-canvas" height="300"></canvas>
+            <div class="card-body p-3">
+              <div class="chart">
+                  <canvas id="transaksiTahunanChart" class="chart-canvas" height="300"></canvas>
+              </div>
             </div>
           </div>
         </div>
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0">
               <h6>Grafik Transaksi Per Mobil</h6>
             </div>
-            <div class="card-body">
-              <canvas id="transaksiMobilChart" class="chart-canvas" height="300"></canvas>
+            <div class="card-body p-3">
+               <div class="chart">
+                <canvas id="transaksiMobilChart" class="chart-canvas" height="300"></canvas>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="row mt-4">
+      <div class="row mt-2">
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0"><h6>Grafik Pendapatan Harian</h6></div>
-            <div class="card-body"><canvas id="pendapatanHarianChart" class="chart-canvas" height="300"></canvas></div>
+             <div class="card-body p-3">
+              <div class="chart">
+                <canvas id="pendapatanHarianChart" class="chart-canvas" height="300"></canvas>
+              </div>
+            </div>
           </div>
         </div>
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0"><h6>Grafik Pendapatan Bulanan</h6></div>
-            <div class="card-body"><canvas id="pendapatanBulananChart" class="chart-canvas" height="300"></canvas></div>
+             <div class="card-body p-3">
+              <div class="chart">
+                <canvas id="pendapatanBulananChart" class="chart-canvas" height="300"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="row">
+      <div class="row mt-2">
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0"><h6>Grafik Pendapatan Tahunan</h6></div>
-            <div class="card-body"><canvas id="pendapatanTahunanChart" class="chart-canvas" height="300"></canvas></div>
+             <div class="card-body p-3">
+              <div class="chart">
+                <canvas id="pendapatanTahunanChart" class="chart-canvas" height="300"></canvas>
+              </div>
+            </div>
           </div>
         </div>
         <div class="col-lg-6 mb-4">
-          <div class="card">
+          <div class="card z-index-2">
             <div class="card-header pb-0"><h6>Grafik Pendapatan Per Mobil</h6></div>
-            <div class="card-body"><canvas id="pendapatanMobilChart" class="chart-canvas" height="300"></canvas></div>
+             <div class="card-body p-3">
+               <div class="chart">
+                <canvas id="pendapatanMobilChart" class="chart-canvas" height="300"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -246,10 +300,10 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   $data_mingguan = [];
 
   $query_mingguan = mysqli_query($conn, "SELECT DATE_FORMAT(created_at, '%W') as hari, COUNT(*) as total 
-                                        FROM transaksi 
-                                        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                                        GROUP BY DATE(created_at), DATE_FORMAT(created_at, '%W')
-                                        ORDER BY DATE(created_at)");
+                                          FROM transaksi 
+                                          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                                          GROUP BY DATE(created_at), DATE_FORMAT(created_at, '%W')
+                                          ORDER BY DATE(created_at)");
   while($row = mysqli_fetch_assoc($query_mingguan)) {
     $labels_mingguan[] = $row['hari'];
     $data_mingguan[] = $row['total'];
@@ -260,10 +314,10 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   $data_bulanan = [];
 
   $query_bulanan = mysqli_query($conn, "SELECT DATE_FORMAT(tanggal_mulai, '%M') as bulan, COUNT(*) as total 
-                                       FROM transaksi 
-                                       WHERE YEAR(tanggal_mulai) = YEAR(CURRENT_DATE())
-                                       GROUP BY MONTH(tanggal_mulai), DATE_FORMAT(tanggal_mulai, '%M')
-                                       ORDER BY MONTH(tanggal_mulai)");
+                                          FROM transaksi 
+                                          WHERE YEAR(tanggal_mulai) = YEAR(CURRENT_DATE())
+                                          GROUP BY MONTH(tanggal_mulai), DATE_FORMAT(tanggal_mulai, '%M')
+                                          ORDER BY MONTH(tanggal_mulai)");
   while($row = mysqli_fetch_assoc($query_bulanan)) {
     $labels_bulanan[] = $row['bulan'];
     $data_bulanan[] = $row['total'];
@@ -274,9 +328,9 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   $data_tahunan = [];
 
   $query_tahunan = mysqli_query($conn, "SELECT YEAR(tanggal_mulai) as tahun, COUNT(*) as total 
-                                       FROM transaksi 
-                                       GROUP BY YEAR(tanggal_mulai)
-                                       ORDER BY YEAR(tanggal_mulai)");
+                                          FROM transaksi 
+                                          GROUP BY YEAR(tanggal_mulai)
+                                          ORDER BY YEAR(tanggal_mulai)");
   while($row = mysqli_fetch_assoc($query_tahunan)) {
     $labels_tahunan[] = $row['tahun'];
     $data_tahunan[] = $row['total'];
@@ -287,10 +341,10 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   $data_mobil = [];
 
   $query_mobil = mysqli_query($conn, "SELECT m.nama_mobil, COUNT(t.id_transaksi) as total 
-                                     FROM mobil m 
-                                     LEFT JOIN transaksi t ON m.id_mobil = t.id_mobil 
-                                     GROUP BY m.id_mobil, m.nama_mobil
-                                     ORDER BY total DESC");
+                                      FROM mobil m 
+                                      LEFT JOIN transaksi t ON m.id_mobil = t.id_mobil 
+                                      GROUP BY m.id_mobil, m.nama_mobil
+                                      ORDER BY total DESC");
   while($row = mysqli_fetch_assoc($query_mobil)) {
     $labels_mobil[] = $row['nama_mobil'];
     $data_mobil[] = $row['total'];
@@ -299,7 +353,7 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   // Data grafik pendapatan harian (7 hari terakhir)
   $labels_pendapatan_harian = [];
   $data_pendapatan_harian = [];
-  $qPendapatanHarian = mysqli_query($conn, "SELECT DATE(tanggal_mulai) as tgl, SUM(total_keseluruhan) as total FROM transaksi WHERE tanggal_mulai >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY DATE(tanggal_mulai) ORDER BY DATE(tanggal_mulai)");
+  $qPendapatanHarian = mysqli_query($conn, "SELECT DATE(created_at) as tgl, SUM(total_keseluruhan) as total FROM transaksi WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY DATE(created_at)");
   while($row = mysqli_fetch_assoc($qPendapatanHarian)) {
     $labels_pendapatan_harian[] = date('d M', strtotime($row['tgl']));
     $data_pendapatan_harian[] = (float)$row['total'];
@@ -331,103 +385,232 @@ $dataTotalPendapatan = mysqli_fetch_assoc($qTotalPendapatan);
   ?>
 
   <script>
-    // Fungsi untuk membuat grafik
-    function createChart(ctx, type, labels, data, label, color) {
-      return new Chart(ctx, {
-        type: type,
-        data: {
-          labels: labels,
-          datasets: [{
-            label: label,
-            data: data,
-            backgroundColor: color.background,
-            borderColor: color.border,
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
+    // --- START ENHANCED CHART SCRIPT ---
+
+    /**
+     * Creates an enhanced Chart.js chart with a modern look and feel.
+     * @param {CanvasRenderingContext2D} ctx - The context of the canvas element.
+     * @param {('line'|'bar')} type - The type of chart.
+     * @param {string[]} labels - The labels for the X-axis.
+     * @param {number[]} data - The data points for the Y-axis.
+     * @param {string} label - The label for the dataset.
+     * @param {string} primaryColor - The primary hex color for the chart (e.g., '#5e72e4').
+     */
+    function createEnhancedChart(ctx, type, labels, data, label, primaryColor) {
+      // Create a gradient for the fill area in line charts
+      const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+      const colorWithOpacity = primaryColor + '33'; // Add ~20% opacity
+      gradient.addColorStop(0, colorWithOpacity);
+      gradient.addColorStop(1, '#ffffff00'); // Transparent at the bottom
+
+      const isRevenueChart = label.toLowerCase().includes('pendapatan');
+
+      // Common options for all charts for a consistent look
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false // Legend is turned off for a cleaner look
           },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1
+          tooltip: {
+            enabled: true,
+            backgroundColor: '#fff',
+            titleColor: '#344767',
+            bodyColor: '#6c757d',
+            borderColor: '#e9ecef',
+            borderWidth: 1,
+            padding: 12,
+            caretSize: 8,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                let value = context.parsed.y;
+                if (isRevenueChart) {
+                  // Format as Indonesian Rupiah for revenue charts
+                  return ` ${context.dataset.label}: Rp ${new Intl.NumberFormat('id-ID').format(value)}`;
+                }
+                return ` ${context.dataset.label}: ${value}`;
               }
             }
           }
-        }
-      });
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false,
+            },
+            ticks: {
+              color: '#6c757d',
+              font: { size: 12, family: "Open Sans", weight: '300' }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: '#e9ecef',
+              drawBorder: false,
+              borderDash: [5, 5] // Dashed grid lines
+            },
+            ticks: {
+              color: '#6c757d',
+              padding: 10,
+              font: { size: 12, family: "Open Sans", weight: '300' },
+              callback: function(value) {
+                if (isRevenueChart) {
+                  // Abbreviate large numbers for the Y-axis
+                  if (value >= 1000000) return `Rp ${value / 1000000} Jt`;
+                  if (value >= 1000) return `Rp ${value / 1000} rb`;
+                  return `Rp ${value}`;
+                }
+                // Ensure integer steps for transaction counts
+                if (Number.isInteger(value)) {
+                    return value;
+                }
+              }
+            }
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+      };
+
+      let chartConfig;
+
+      // Configuration specific to LINE charts
+      if (type === 'line') {
+        chartConfig = {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: label,
+              data: data,
+              backgroundColor: gradient,
+              borderColor: primaryColor,
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4, // For smooth, curved lines
+              pointBackgroundColor: primaryColor,
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 7,
+              pointHoverBackgroundColor: primaryColor,
+              pointHoverBorderColor: '#fff',
+            }]
+          },
+          options: commonOptions
+        };
+      } 
+      // Configuration specific to BAR charts
+      else if (type === 'bar') {
+        chartConfig = {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: label,
+              data: data,
+              backgroundColor: primaryColor + 'CC', // 80% opacity
+              borderColor: primaryColor,
+              borderWidth: 0,
+              borderRadius: 8, // For rounded bar corners
+              hoverBackgroundColor: primaryColor,
+              barPercentage: 0.6,
+              categoryPercentage: 0.7,
+            }]
+          },
+          options: commonOptions
+        };
+      }
+
+      return new Chart(ctx, chartConfig);
     }
+
+    // Color palette based on Argon theme
+    const argonColors = {
+      primary: '#5e72e4',
+      success: '#2dce89',
+      warning: '#fb6340',
+      danger: '#f5365c',
+      info: '#11cdef'
+    };
+
+    // --- Instantiate all charts with the new enhanced function ---
 
     // Grafik Transaksi Mingguan (Line)
     var ctxMingguan = document.getElementById("transaksiMingguanChart").getContext("2d");
-    createChart(ctxMingguan, "line", 
+    createEnhancedChart(ctxMingguan, "line", 
       <?= json_encode($labels_mingguan) ?>, 
       <?= json_encode($data_mingguan) ?>,
-      "Transaksi Mingguan",
-      {
-        background: 'rgba(66, 153, 225, 0.5)',
-        border: 'rgb(66, 153, 225)'
-      }
+      "Transaksi",
+      argonColors.primary
     );
 
     // Grafik Transaksi Bulanan (Line)
     var ctxBulanan = document.getElementById("transaksiBulananChart").getContext("2d");
-    createChart(ctxBulanan, "line", 
+    createEnhancedChart(ctxBulanan, "line", 
       <?= json_encode($labels_bulanan) ?>, 
       <?= json_encode($data_bulanan) ?>,
-      "Transaksi Bulanan",
-      {
-        background: 'rgba(72, 187, 120, 0.5)',
-        border: 'rgb(72, 187, 120)'
-      }
+      "Transaksi",
+      argonColors.success
     );
 
     // Grafik Transaksi Tahunan (Line)
     var ctxTahunan = document.getElementById("transaksiTahunanChart").getContext("2d");
-    createChart(ctxTahunan, "line", 
+    createEnhancedChart(ctxTahunan, "line", 
       <?= json_encode($labels_tahunan) ?>, 
       <?= json_encode($data_tahunan) ?>,
-      "Transaksi Tahunan",
-      {
-        background: 'rgba(237, 137, 54, 0.5)',
-        border: 'rgb(237, 137, 54)'
-      }
+      "Transaksi",
+      argonColors.warning
     );
 
     // Grafik Transaksi Per Mobil (Bar)
     var ctxMobil = document.getElementById("transaksiMobilChart").getContext("2d");
-    createChart(ctxMobil, "bar", 
+    createEnhancedChart(ctxMobil, "bar", 
       <?= json_encode($labels_mobil) ?>, 
       <?= json_encode($data_mobil) ?>,
-      "Transaksi Per Mobil",
-      {
-        background: 'rgba(245, 101, 101, 0.5)',
-        border: 'rgb(245, 101, 101)'
-      }
+      "Jumlah Transaksi",
+      argonColors.danger
     );
 
     // Grafik Pendapatan Harian
     var ctxPHarian = document.getElementById("pendapatanHarianChart").getContext("2d");
-    createChart(ctxPHarian, "line", <?= json_encode($labels_pendapatan_harian) ?>, <?= json_encode($data_pendapatan_harian) ?>, "Pendapatan Harian", {background: 'rgba(66,153,225,0.2)', border: 'rgb(66,153,225)'});
+    createEnhancedChart(ctxPHarian, "line", 
+        <?= json_encode($labels_pendapatan_harian) ?>, 
+        <?= json_encode($data_pendapatan_harian) ?>, 
+        "Pendapatan Harian", 
+        argonColors.primary);
 
     // Grafik Pendapatan Bulanan
     var ctxPBulanan = document.getElementById("pendapatanBulananChart").getContext("2d");
-    createChart(ctxPBulanan, "line", <?= json_encode($labels_pendapatan_bulanan) ?>, <?= json_encode($data_pendapatan_bulanan) ?>, "Pendapatan Bulanan", {background: 'rgba(72,187,120,0.2)', border: 'rgb(72,187,120)'});
+    createEnhancedChart(ctxPBulanan, "line", 
+        <?= json_encode($labels_pendapatan_bulanan) ?>, 
+        <?= json_encode($data_pendapatan_bulanan) ?>, 
+        "Pendapatan Bulanan", 
+        argonColors.success);
 
     // Grafik Pendapatan Tahunan
     var ctxPTahunan = document.getElementById("pendapatanTahunanChart").getContext("2d");
-    createChart(ctxPTahunan, "line", <?= json_encode($labels_pendapatan_tahunan) ?>, <?= json_encode($data_pendapatan_tahunan) ?>, "Pendapatan Tahunan", {background: 'rgba(237,137,54,0.2)', border: 'rgb(237,137,54)'});
+    createEnhancedChart(ctxPTahunan, "line", 
+        <?= json_encode($labels_pendapatan_tahunan) ?>, 
+        <?= json_encode($data_pendapatan_tahunan) ?>, 
+        "Pendapatan Tahunan", 
+        argonColors.warning);
 
     // Grafik Pendapatan Per Mobil
     var ctxPMobil = document.getElementById("pendapatanMobilChart").getContext("2d");
-    createChart(ctxPMobil, "bar", <?= json_encode($labels_pendapatan_mobil) ?>, <?= json_encode($data_pendapatan_mobil) ?>, "Pendapatan Per Mobil", {background: 'rgba(245,101,101,0.5)', border: 'rgb(245,101,101)'});
+    createEnhancedChart(ctxPMobil, "bar", 
+        <?= json_encode($labels_pendapatan_mobil) ?>, 
+        <?= json_encode($data_pendapatan_mobil) ?>, 
+        "Pendapatan Per Mobil", 
+        argonColors.danger);
+
+    // --- END ENHANCED CHART SCRIPT ---
   </script>
 </body>
-</html> 
+</html>

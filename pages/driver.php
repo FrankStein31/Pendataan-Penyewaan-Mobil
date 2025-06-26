@@ -128,7 +128,18 @@ if(isset($_GET['hapus'])) {
                 <i class="fa fa-plus"></i> Tambah
               </button>
             </div>
-            <div class="card-body px-0 pt-0 pb-2">
+            <div class="card-body pt-3 pb-0">
+              <form method="GET" class="row g-3 mb-3">
+                <div class="col-md-4">
+                  <input type="text" class="form-control" name="q" placeholder="Cari nama, no telp, atau no SIM" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>">
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-info"><i class="fa fa-search"></i> Cari</button>
+                  <?php if(isset($_GET['q']) && $_GET['q'] != '') { ?>
+                  <a href="driver.php" class="btn btn-secondary">Reset</a>
+                  <?php } ?>
+                </div>
+              </form>
               <div class="table-responsive p-0">
                 <table class="table align-items-center mb-0">
                   <thead>
@@ -143,7 +154,13 @@ if(isset($_GET['hapus'])) {
                   </thead>
                   <tbody>
                     <?php
-                    $query = mysqli_query($conn, "SELECT * FROM driver ORDER BY id_driver DESC");
+                    // Query pencarian
+                    $where = '';
+                    if(isset($_GET['q']) && $_GET['q'] != '') {
+                      $q = mysqli_real_escape_string($conn, $_GET['q']);
+                      $where = "WHERE nama_driver LIKE '%$q%' OR no_telp LIKE '%$q%' OR no_sim LIKE '%$q%'";
+                    }
+                    $query = mysqli_query($conn, "SELECT * FROM driver $where ORDER BY id_driver DESC");
                     while($data = mysqli_fetch_array($query)) {
                     ?>
                     <tr>
