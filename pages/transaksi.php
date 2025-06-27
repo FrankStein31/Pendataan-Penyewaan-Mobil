@@ -113,6 +113,80 @@ if(isset($_POST['edit'])) {
   header("Location: transaksi.php");
 }
 
+// PHP logic for editing complete transaction
+if(isset($_POST['edit_lengkap'])) {
+  $id_transaksi = $_POST['id_transaksi'];
+  $id_penyewa = $_POST['id_penyewa'];
+  $id_mobil = $_POST['id_mobil'];
+  $id_driver = $_POST['id_driver'] != '' ? $_POST['id_driver'] : null;
+  $tanggal_mulai = $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'];
+  $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
+  
+  // Hitung total hari
+  $start = new DateTime($tanggal_mulai);
+  $end = new DateTime($tanggal_selesai);
+  $interval = $start->diff($end);
+  $total_hari = $interval->days > 0 ? $interval->days : 1;
+  
+  // Ambil harga mobil dan driver
+  $mobil = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_sewa_perhari FROM mobil WHERE id_mobil='$id_mobil'"));
+  $total_biaya_mobil = (float)$mobil['harga_sewa_perhari'] * $total_hari;
+  
+  $total_biaya_driver = 0;
+  if($id_driver) {
+    $driver = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_perhari FROM driver WHERE id_driver='$id_driver'"));
+    $total_biaya_driver = (float)$driver['harga_perhari'] * $total_hari;
+  }
+  
+  // Hitung total biaya tambahan
+  $total_biaya_tambahan = 0;
+  if(isset($_POST['biaya_tambahan'])) {
+    foreach($_POST['biaya_tambahan'] as $id_tipe => $jumlah) {
+      if($jumlah > 0) {
+        $total_biaya_tambahan += (float)$jumlah;
+      }
+    }
+  }
+  
+  $total_keseluruhan = $total_biaya_mobil + $total_biaya_driver + $total_biaya_tambahan;
+  $status_pembayaran = $_POST['status_pembayaran'];
+  $jumlah_dp = $status_pembayaran == 'DP' ? (float)$_POST['jumlah_dp'] : 0;
+  $sisa_pembayaran = $status_pembayaran == 'DP' ? $total_keseluruhan - $jumlah_dp : 0;
+  $status_sewa = $status_pembayaran == 'DP' ? 'Berlangsung' : 'Selesai';
+  
+  // Update transaksi
+  mysqli_query($conn, "UPDATE transaksi SET 
+                    id_penyewa='$id_penyewa',
+                    id_mobil='$id_mobil',
+                    id_driver=" . ($id_driver ? "'$id_driver'" : "NULL") . ",
+                    tanggal_mulai='$tanggal_mulai',
+                    tanggal_selesai='$tanggal_selesai',
+                    total_hari='$total_hari',
+                    total_biaya_mobil='$total_biaya_mobil',
+                    total_biaya_driver='$total_biaya_driver',
+                    total_biaya_tambahan='$total_biaya_tambahan',
+                    total_keseluruhan='$total_keseluruhan',
+                    status_pembayaran='$status_pembayaran',
+                    jumlah_dp='$jumlah_dp',
+                    sisa_pembayaran='$sisa_pembayaran',
+                    status_sewa='$status_sewa'
+                    WHERE id_transaksi='$id_transaksi'");
+  
+  // Hapus detail biaya lama
+  mysqli_query($conn, "DELETE FROM detail_biaya WHERE id_transaksi='$id_transaksi'");
+  
+  // Simpan detail biaya baru
+  if(isset($_POST['biaya_tambahan'])) {
+    foreach($_POST['biaya_tambahan'] as $id_tipe => $jumlah) {
+      if($jumlah > 0) {
+        mysqli_query($conn, "INSERT INTO detail_biaya (id_transaksi, id_tipe, jumlah) VALUES ('$id_transaksi', '$id_tipe', '$jumlah')");
+      }
+    }
+  }
+  
+  header("Location: transaksi.php");
+}
+
 // PHP logic for deleting a transaction
 if(isset($_POST['hapus'])) {
   $id_transaksi = $_POST['id_transaksi'];
@@ -189,6 +263,23 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       $('.select2-filter').select2({
         width: '100%'
       });
+
+      // Select2 untuk modal edit lengkap
+      $(document).on('shown.bs.modal', '.modal', function() {
+        if ($(this).attr('id').includes('editLengkapModal')) {
+          $(this).find('.select2').each(function() {
+            if ($(this).hasClass('select2-hidden-accessible')) {
+              $(this).select2('destroy');
+            }
+            $(this).select2({
+              dropdownParent: $(this).closest('.modal'),
+              width: '100%'
+            }).on('select2:open', function() {
+              $('.select2-dropdown').css('z-index', 1060);
+            });
+          });
+        }
+      });
     }
 
     function setupEventHandlers() {
@@ -226,6 +317,33 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       // Event untuk biaya tambahan
       $('.biaya-tambahan').on('input', function() {
         hitungTotal();
+      });
+
+      // Event untuk modal edit lengkap
+      $(document).on('select2:select', '[id^="select-mobil-edit"]', function(e) {
+        const idTransaksi = $(this).attr('id').replace('select-mobil-edit', '');
+        hitungTotalLengkap(idTransaksi);
+      });
+
+      $(document).on('select2:select', '[id^="select-driver-edit"]', function(e) {
+        const idTransaksi = $(this).attr('id').replace('select-driver-edit', '');
+        hitungTotalLengkap(idTransaksi);
+      });
+
+      $(document).on('change', 'input[name="tanggal_mulai"], input[name="jam_mulai"], input[name="tanggal_selesai"], input[name="jam_selesai"]', function() {
+        const modal = $(this).closest('.modal');
+        if (modal.attr('id').includes('editLengkapModal')) {
+          const idTransaksi = modal.attr('id').replace('editLengkapModal', '');
+          hitungTotalLengkap(idTransaksi);
+        }
+      });
+
+      $(document).on('input', '.biaya-tambahan-lengkap', function() {
+        const modal = $(this).closest('.modal');
+        if (modal.attr('id').includes('editLengkapModal')) {
+          const idTransaksi = modal.attr('id').replace('editLengkapModal', '');
+          hitungTotalLengkap(idTransaksi);
+        }
       });
     }
     
@@ -414,7 +532,20 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
     }
 
     function exportExcel() {
-      window.location.href = 'export_transaksi.php';
+      // Ambil parameter filter yang sedang aktif
+      const startDate = $('input[name="start_date"]').val();
+      const endDate = $('input[name="end_date"]').val();
+      const idMobil = $('select[name="id_mobil"]').val();
+      const idPenyewa = $('select[name="id_penyewa"]').val();
+      
+      // Buat URL dengan parameter
+      let url = 'export_transaksi.php?';
+      url += 'start_date=' + startDate;
+      url += '&end_date=' + endDate;
+      if(idMobil) url += '&id_mobil=' + idMobil;
+      if(idPenyewa) url += '&id_penyewa=' + idPenyewa;
+      
+      window.location.href = url;
     }
 
     function hitungSisaPembayaran() {
@@ -471,6 +602,114 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
         // Trigger initial calculation
         hitungSisaPembayaran();
     });
+
+    // Fungsi untuk modal edit lengkap
+    function toggleBiayaLengkap(idTransaksi, idTipe) {
+        const isChecked = $('#biayaLengkap'+idTransaksi+'_'+idTipe).is(':checked');
+        const groupInput = $('#group-jumlahLengkap'+idTransaksi+'_'+idTipe);
+        const input = $('#jumlahLengkap'+idTransaksi+'_'+idTipe);
+        
+        if(isChecked) {
+            groupInput.show();
+            input.prop('disabled', false);
+            input.focus();
+        } else {
+            groupInput.hide();
+            input.prop('disabled', true);
+            input.val('');
+        }
+        hitungTotalLengkap(idTransaksi);
+    }
+
+    function hitungTotalLengkap(idTransaksi) {
+        try {
+            // --- 1. Hitung Durasi ---
+            const modal = $('#editLengkapModal'+idTransaksi);
+            const startDate = modal.find('input[name="tanggal_mulai"]').val();
+            const startTime = modal.find('input[name="jam_mulai"]').val();
+            const endDate = modal.find('input[name="tanggal_selesai"]').val();
+            const endTime = modal.find('input[name="jam_selesai"]').val();
+            
+            let totalHari = 0;
+            if (startDate && startTime && endDate && endTime) {
+                const start = new Date(`${startDate}T${startTime}`);
+                const end = new Date(`${endDate}T${endTime}`);
+                if (end > start) {
+                    const diff = Math.abs(end - start);
+                    totalHari = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                    if (totalHari === 0) totalHari = 1; // Minimum 1 hari
+                }
+            }
+            $('#estimasi-hari-lengkap'+idTransaksi).text(totalHari + ' Hari');
+
+            // --- 2. Hitung Biaya Mobil & Driver ---
+            const selectedMobil = modal.find('#select-mobil-edit'+idTransaksi).find('option:selected');
+            const selectedDriver = modal.find('#select-driver-edit'+idTransaksi).find('option:selected');
+            
+            const hargaMobil = parseInt(selectedMobil.attr('data-harga')) || 0;
+            const hargaDriver = parseInt(selectedDriver.attr('data-harga')) || 0;
+            
+            const totalMobil = hargaMobil * totalHari;
+            const totalDriver = hargaDriver * totalHari;
+            
+            $('#estimasi-mobil-lengkap'+idTransaksi).text('Rp ' + formatRupiah(totalMobil));
+            $('#estimasi-driver-lengkap'+idTransaksi).text('Rp ' + formatRupiah(totalDriver));
+
+            // --- 3. Hitung Biaya Tambahan ---
+            let totalTambahan = 0;
+            modal.find('.biaya-tambahan-lengkap:not(:disabled)').each(function() {
+                const nilai = parseInt($(this).val()) || 0;
+                totalTambahan += nilai;
+            });
+            $('#estimasi-tambahan-lengkap'+idTransaksi).text('Rp ' + formatRupiah(totalTambahan));
+
+            // --- 4. Hitung Total Keseluruhan ---
+            const total = totalMobil + totalDriver + totalTambahan;
+            $('#estimasi-total-lengkap'+idTransaksi).text('Rp ' + formatRupiah(total));
+
+            // --- 5. Hitung Sisa Pembayaran jika DP ---
+            const statusBayar = modal.find('#status-pembayaran-lengkap'+idTransaksi).val();
+            if (statusBayar === 'DP') {
+                const dp = parseInt(modal.find('#jumlah-dp-lengkap'+idTransaksi).val()) || 0;
+                const sisa = total - dp;
+                $('#sisa-pembayaran-lengkap'+idTransaksi).text('Rp ' + formatRupiah(sisa));
+            }
+        } catch (error) {
+            console.error('Error dalam hitungTotalLengkap:', error);
+        }
+    }
+
+    function toggleDPLengkap(value, idTransaksi) {
+        const dpGroup = $('#dpGroupLengkap'+idTransaksi);
+        if(value === 'DP') {
+            dpGroup.show();
+        } else {
+            dpGroup.hide();
+            $('#jumlah-dp-lengkap'+idTransaksi).val('');
+            $('#sisa-pembayaran-lengkap'+idTransaksi).text('Rp 0');
+        }
+        hitungTotalLengkap(idTransaksi);
+    }
+
+    function hitungSisaLengkap(dp, idTransaksi) {
+        try {
+            const modal = $('#editLengkapModal'+idTransaksi);
+            const totalMobil = parseInt($('#estimasi-mobil-lengkap'+idTransaksi).text().replace(/[^\d]/g, '')) || 0;
+            const totalDriver = parseInt($('#estimasi-driver-lengkap'+idTransaksi).text().replace(/[^\d]/g, '')) || 0;
+            
+            let totalTambahan = 0;
+            modal.find('.biaya-tambahan-lengkap:not(:disabled)').each(function() {
+                totalTambahan += parseInt($(this).val()) || 0;
+            });
+            
+            const totalKeseluruhan = totalMobil + totalDriver + totalTambahan;
+            const sisa = totalKeseluruhan - parseFloat(dp);
+            
+            $('#sisa-pembayaran-lengkap'+idTransaksi).text('Rp ' + formatRupiah(sisa));
+        } catch (error) {
+            console.error('Error dalam hitungSisaLengkap:', error);
+        }
+    }
   </script>
   
   <style>
@@ -520,17 +759,90 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
     }
 
     /* Modal z-index */
-    .modal {
-      z-index: 1050 !important;
-    }
+    .modal,
     .modal-backdrop {
-      z-index: 1040 !important;
+      z-index: 2000 !important;
+    }
+    .sidenav {
+      z-index: 900 !important;
     }
     .select2-dropdown {
       z-index: 1060 !important;
     }
     .select2-container--open {
       z-index: 1060 !important;
+    }
+
+    /* Custom styling for form elements */
+    .form-check-input {
+      width: 1.2em;
+      height: 1.2em;
+      margin-top: 0.25em;
+      margin-right: 0.5em;
+      border: 1px solid #d2d6da;
+      border-radius: 0.25rem;
+    }
+
+    .form-check-input:checked {
+      background-color: #5e72e4;
+      border-color: #5e72e4;
+    }
+
+    .form-check-label {
+      margin-bottom: 0;
+      font-weight: 500;
+      color: #344767;
+    }
+
+    .input-group-sm .form-control {
+      height: calc(1.5em + 0.5rem + 2px);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 0.375rem;
+    }
+
+    .input-group-sm .input-group-text {
+      height: calc(1.5em + 0.5rem + 2px);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 0.375rem;
+    }
+
+    /* Sticky positioning for sidebar */
+    .position-sticky {
+      position: sticky !important;
+    }
+
+    /* Custom styling for modal edit lengkap */
+    .modal-xl {
+      max-width: 1200px;
+    }
+
+    .card.shadow-none.border {
+      border: 1px solid #e9ecef !important;
+      box-shadow: none !important;
+    }
+
+    .list-group-item {
+      border-left: none;
+      border-right: none;
+      padding: 0.75rem 1rem;
+    }
+
+    .list-group-item:first-child {
+      border-top: none;
+    }
+
+    .list-group-item:last-child {
+      border-bottom: none;
+    }
+
+    .modal-backdrop {
+      background-color: #222 !important;
+      opacity: 0.3 !important;
+    }
+    .modal {
+      z-index: 2100 !important;
     }
   </style>
 </head>
@@ -783,6 +1095,9 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           </button>
                           <button class="btn btn-warning btn-sm mb-1" data-bs-toggle="modal" data-bs-target="#editModal<?= $data['id_transaksi'] ?>">
                             <i class="fa fa-edit"></i>
+                          </button>
+                          <button class="btn btn-primary btn-sm mb-1" data-bs-toggle="modal" data-bs-target="#editLengkapModal<?= $data['id_transaksi'] ?>">
+                            <i class="fa fa-cogs"></i>
                           </button>
                           <button class="btn btn-danger btn-sm" onclick="if(confirm('Hapus transaksi ini?')) { document.getElementById('formHapus<?= $data['id_transaksi'] ?>').submit(); }">
                             <i class="fa fa-trash"></i>
@@ -1207,5 +1522,204 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       </div>
     </div>
   </div>
+  <!-- Modal Edit Lengkap -->
+  <?php
+  // Reset query untuk modal edit lengkap
+  $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver 
+                                FROM transaksi t 
+                                JOIN penyewa p ON t.id_penyewa=p.id_penyewa
+                                JOIN mobil m ON t.id_mobil=m.id_mobil
+                                LEFT JOIN driver d ON t.id_driver=d.id_driver
+                                $where
+                                ORDER BY t.tanggal_mulai DESC");
+  while($data = mysqli_fetch_array($query)) {
+  ?>
+  <div class="modal fade" id="editLengkapModal<?= $data['id_transaksi'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title d-flex align-items-center">
+            <i class="fa fa-cogs text-primary me-2"></i>Edit Lengkap Transaksi #<?= $data['id_transaksi'] ?>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="" method="POST">
+          <input type="hidden" name="id_transaksi" value="<?= $data['id_transaksi'] ?>">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="card shadow-none border mb-4">
+                  <div class="card-body">
+                    <h6 class="text-primary mb-3"><i class="fa fa-user me-2"></i>1. Data Penyewaan</h6>
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label class="form-label">Penyewa</label>
+                        <select class="form-control select2" name="id_penyewa" required>
+                          <option value="">Pilih Penyewa...</option>
+                          <?php
+                          $q_penyewa = mysqli_query($conn, "SELECT * FROM penyewa ORDER BY nama_penyewa");
+                          while($d_penyewa = mysqli_fetch_array($q_penyewa)) {
+                            $selected = ($data['id_penyewa'] == $d_penyewa['id_penyewa']) ? 'selected' : '';
+                            echo "<option value='$d_penyewa[id_penyewa]' $selected>$d_penyewa[nama_penyewa]</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Mobil</label>
+                        <select class="form-control select2" name="id_mobil" id="select-mobil-edit<?= $data['id_transaksi'] ?>" required>
+                          <option value="">Pilih Mobil...</option>
+                          <?php
+                          $q_mobil = mysqli_query($conn, "SELECT * FROM mobil ORDER BY nama_mobil");
+                          while($d_mobil = mysqli_fetch_array($q_mobil)) {
+                            $selected = ($data['id_mobil'] == $d_mobil['id_mobil']) ? 'selected' : '';
+                            $harga = $d_mobil['harga_sewa_perhari'];
+                            echo "<option value='$d_mobil[id_mobil]' data-harga='$harga' $selected>$d_mobil[nama_mobil] - $d_mobil[plat_nomor] (Rp " . number_format($harga,0,',','.') . "/hari)</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Driver (Opsional)</label>
+                        <select class="form-control select2" name="id_driver" id="select-driver-edit<?= $data['id_transaksi'] ?>">
+                          <option value="">Tanpa Driver</option>
+                          <?php
+                          $q_driver = mysqli_query($conn, "SELECT * FROM driver ORDER BY nama_driver");
+                          while($d_driver = mysqli_fetch_array($q_driver)) {
+                            $selected = ($data['id_driver'] == $d_driver['id_driver']) ? 'selected' : '';
+                            echo "<option value='$d_driver[id_driver]' data-harga='$d_driver[harga_perhari]' $selected>$d_driver[nama_driver] (Rp " . number_format($d_driver['harga_perhari'],0,',','.') . "/hari)</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card shadow-none border mb-4">
+                  <div class="card-body">
+                    <h6 class="text-primary mb-3"><i class="fa fa-calendar me-2"></i>2. Waktu Sewa</h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label">Tanggal & Jam Mulai</label>
+                        <div class="input-group">
+                          <input type="date" class="form-control" name="tanggal_mulai" value="<?= date('Y-m-d', strtotime($data['tanggal_mulai'])) ?>" required>
+                          <input type="time" class="form-control" name="jam_mulai" value="<?= date('H:i', strtotime($data['tanggal_mulai'])) ?>" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Tanggal & Jam Selesai</label>
+                        <div class="input-group">
+                          <input type="date" class="form-control" name="tanggal_selesai" value="<?= date('Y-m-d', strtotime($data['tanggal_selesai'])) ?>" required>
+                          <input type="time" class="form-control" name="jam_selesai" value="<?= date('H:i', strtotime($data['tanggal_selesai'])) ?>" required>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card shadow-none border">
+                  <div class="card-body">
+                    <h6 class="text-primary mb-3"><i class="fa fa-plus-circle me-2"></i>3. Biaya Tambahan (Opsional)</h6>
+                    <div class="row g-3">
+                      <?php
+                      $q_tipe = mysqli_query($conn, "SELECT * FROM tipe_biaya ORDER BY nama_tipe");
+                      while($d_tipe = mysqli_fetch_array($q_tipe)) {
+                        // Ambil jumlah biaya jika ada
+                        $biaya = mysqli_fetch_array(mysqli_query($conn, "SELECT jumlah FROM detail_biaya WHERE id_transaksi='$data[id_transaksi]' AND id_tipe='$d_tipe[id_tipe]'"));
+                      ?>
+                      <div class="col-12">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                          <div class="form-check mb-0">
+                            <input class="form-check-input" type="checkbox" id="biayaLengkap<?= $data['id_transaksi'] ?>_<?= $d_tipe['id_tipe'] ?>" 
+                                   onchange="toggleBiayaLengkap(<?= $data['id_transaksi'] ?>, <?= $d_tipe['id_tipe'] ?>)"
+                                   <?= $biaya ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="biayaLengkap<?= $data['id_transaksi'] ?>_<?= $d_tipe['id_tipe'] ?>">
+                              <?= $d_tipe['nama_tipe'] ?>
+                            </label>
+                          </div>
+                          <div class="input-group input-group-sm" style="width: 200px; display: <?= $biaya ? 'flex' : 'none' ?>;" 
+                               id="group-jumlahLengkap<?= $data['id_transaksi'] ?>_<?= $d_tipe['id_tipe'] ?>">
+                            <span class="input-group-text bg-gradient-light">Rp</span>
+                            <input type="number" class="form-control text-end biaya-tambahan-lengkap" name="biaya_tambahan[<?= $d_tipe['id_tipe'] ?>]" 
+                                   id="jumlahLengkap<?= $data['id_transaksi'] ?>_<?= $d_tipe['id_tipe'] ?>" 
+                                   placeholder="0" value="<?= $biaya ? $biaya['jumlah'] : '' ?>">
+                          </div>
+                        </div>
+                        <hr class="my-2">
+                      </div>
+                      <?php } ?>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4">
+                <div class="card shadow-none border position-sticky" style="top: 1rem;">
+                  <div class="card-body">
+                    <h6 class="text-primary mb-3"><i class="fa fa-calculator me-2"></i>Rincian Biaya</h6>
+                    <ul class="list-group mb-4">
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Lama Sewa</span>
+                        <strong id="estimasi-hari-lengkap<?= $data['id_transaksi'] ?>"><?= $data['total_hari'] ?> Hari</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Biaya Mobil</span>
+                        <strong id="estimasi-mobil-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['total_biaya_mobil'],0,',','.') ?></strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Biaya Driver</span>
+                        <strong id="estimasi-driver-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['total_biaya_driver'],0,',','.') ?></strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Biaya Tambahan</span>
+                        <strong id="estimasi-tambahan-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['total_biaya_tambahan'],0,',','.') ?></strong>
+                      </li>
+                      <li class="list-group-item list-group-item-success d-flex justify-content-between align-items-center">
+                        <strong>Total Biaya</strong>
+                        <strong id="estimasi-total-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['total_keseluruhan'],0,',','.') ?></strong>
+                      </li>
+                    </ul>
+
+                    <h6 class="text-primary mb-3"><i class="fa fa-money me-2"></i>4. Pembayaran</h6>
+                    <div class="form-group mb-3">
+                      <label class="form-label">Status Pembayaran</label>
+                      <select class="form-control" name="status_pembayaran" id="status-pembayaran-lengkap<?= $data['id_transaksi'] ?>" onchange="toggleDPLengkap(this.value, <?= $data['id_transaksi'] ?>)" required>
+                        <option value="Lunas" <?= $data['status_pembayaran'] == 'Lunas' ? 'selected' : '' ?>>Lunas</option>
+                        <option value="DP" <?= $data['status_pembayaran'] == 'DP' ? 'selected' : '' ?>>DP (Uang Muka)</option>
+                      </select>
+                    </div>
+                    <div id="dpGroupLengkap<?= $data['id_transaksi'] ?>" style="display: <?= $data['status_pembayaran'] == 'DP' ? 'block' : 'none' ?>;">
+                      <div class="form-group">
+                        <label class="form-label">Jumlah DP</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" name="jumlah_dp" id="jumlah-dp-lengkap<?= $data['id_transaksi'] ?>" value="<?= $data['jumlah_dp'] ?>">
+                        </div>
+                      </div>
+                      <div class="alert alert-danger mt-3 mb-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <span>Sisa Pembayaran:</span>
+                          <strong id="sisa-pembayaran-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['sisa_pembayaran'],0,',','.') ?></strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" name="edit_lengkap" class="btn bg-gradient-primary">
+              <i class="fa fa-save me-2"></i>Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <?php } ?>
+
 </body>
 </html>

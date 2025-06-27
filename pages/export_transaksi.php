@@ -10,11 +10,15 @@ header("Content-Disposition: attachment; filename=Data_Transaksi.xls");
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
 $id_mobil = isset($_GET['id_mobil']) ? $_GET['id_mobil'] : '';
+$id_penyewa = isset($_GET['id_penyewa']) ? $_GET['id_penyewa'] : '';
 
 $where = "WHERE 1=1";
 $where .= " AND DATE(t.tanggal_mulai) BETWEEN '$start_date' AND '$end_date'";
 if($id_mobil != '') {
   $where .= " AND t.id_mobil='$id_mobil'";
+}
+if($id_penyewa != '') {
+  $where .= " AND t.id_penyewa='$id_penyewa'";
 }
 
 $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver 
