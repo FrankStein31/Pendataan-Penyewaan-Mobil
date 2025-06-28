@@ -91,6 +91,25 @@ insert  into `detail_biaya`(`id_detail`,`id_transaksi`,`id_tipe`,`jumlah`,`creat
 (86,30,5,150000.00,'2025-06-27 12:38:19'),
 (87,30,3,400000.00,'2025-06-27 12:38:19');
 
+/*Table structure for table `histori_pembayaran` */
+
+DROP TABLE IF EXISTS `histori_pembayaran`;
+
+CREATE TABLE `histori_pembayaran` (
+  `id_histori` int NOT NULL AUTO_INCREMENT,
+  `id_transaksi` int NOT NULL,
+  `jenis_pembayaran` enum('DP','Pelunasan','Lunas') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `jumlah` decimal(10,2) NOT NULL,
+  `tanggal_pembayaran` datetime NOT NULL,
+  `keterangan` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_histori`),
+  KEY `id_transaksi` (`id_transaksi`),
+  CONSTRAINT `histori_pembayaran_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*Data for the table `histori_pembayaran` */
+
 /*Table structure for table `driver` */
 
 DROP TABLE IF EXISTS `driver`;

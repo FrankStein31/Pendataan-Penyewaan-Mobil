@@ -49,6 +49,23 @@ if(isset($_POST['tambah'])) {
   
   $id_transaksi = mysqli_insert_id($conn);
   
+  // Simpan histori pembayaran jika DP
+  if($status_pembayaran == 'DP') {
+    $cek_histori = mysqli_query($conn, "SELECT COUNT(*) as total FROM histori_pembayaran WHERE id_transaksi='$id_transaksi' AND jenis_pembayaran='DP' AND jumlah='$jumlah_dp'");
+    $histori_ada = mysqli_fetch_assoc($cek_histori);
+    if($histori_ada['total'] == 0) {
+      mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                          VALUES ('$id_transaksi', 'DP', '$jumlah_dp', NOW(), 'Pembayaran DP awal')");
+    }
+  } else {
+    $cek_histori = mysqli_query($conn, "SELECT COUNT(*) as total FROM histori_pembayaran WHERE id_transaksi='$id_transaksi' AND jenis_pembayaran='Lunas' AND jumlah='$total_keseluruhan'");
+    $histori_ada = mysqli_fetch_assoc($cek_histori);
+    if($histori_ada['total'] == 0) {
+      mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                          VALUES ('$id_transaksi', 'Lunas', '$total_keseluruhan', NOW(), 'Pembayaran lunas')");
+    }
+  }
+  
   // Simpan detail biaya tambahan
   if(isset($_POST['biaya_tambahan'])) {
     foreach($_POST['biaya_tambahan'] as $id_tipe => $jumlah) {
@@ -66,6 +83,9 @@ if(isset($_POST['edit'])) {
   $id_transaksi = $_POST['id_transaksi'];
   $status_pembayaran = $_POST['status_pembayaran'];
   
+  // Ambil data transaksi lama untuk menyimpan histori
+  $data_transaksi_lama = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM transaksi WHERE id_transaksi='$id_transaksi'"));
+  
   // Hitung total biaya tambahan baru
   $total_biaya_tambahan = 0;
   if(isset($_POST['biaya_tambahan'])) {
@@ -79,6 +99,35 @@ if(isset($_POST['edit'])) {
   // Ambil data transaksi
   $data_transaksi = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_mobil, harga_driver FROM transaksi WHERE id_transaksi='$id_transaksi'"));
   $total_keseluruhan = $data_transaksi['harga_mobil'] + $data_transaksi['harga_driver'] + $total_biaya_tambahan;
+  
+  // Jika sebelumnya DP dan sekarang Lunas, simpan histori DP
+  if($data_transaksi_lama['status_pembayaran'] == 'DP' && $status_pembayaran == 'Lunas') {
+    // Cek histori DP awal sudah ada atau belum
+    $cek_histori = mysqli_query($conn, "SELECT COUNT(*) as total FROM histori_pembayaran WHERE id_transaksi='$id_transaksi' AND jenis_pembayaran='DP' AND jumlah='".$data_transaksi_lama['jumlah_dp']."'");
+    $histori_ada = mysqli_fetch_assoc($cek_histori);
+    if($histori_ada['total'] == 0) {
+        mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                            VALUES ('$id_transaksi', 'DP', '".$data_transaksi_lama['jumlah_dp']."', NOW(), 'Pembayaran DP awal')");
+    }
+    // Simpan pembayaran pelunasan
+    $jumlah_pelunasan = $data_transaksi_lama['sisa_pembayaran'];
+    mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                        VALUES ('$id_transaksi', 'Pelunasan', '$jumlah_pelunasan', NOW(), 'Pelunasan sisa pembayaran')");
+  }
+  // Jika sebelumnya Lunas dan sekarang DP, simpan histori DP baru
+  else if($data_transaksi_lama['status_pembayaran'] == 'Lunas' && $status_pembayaran == 'DP') {
+    $jumlah_dp = $_POST['jumlah_dp'];
+    mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                        VALUES ('$id_transaksi', 'DP', '$jumlah_dp', NOW(), 'Pembayaran DP')");
+  }
+  // Jika tetap DP tapi jumlah berubah
+  else if($status_pembayaran == 'DP' && $data_transaksi_lama['status_pembayaran'] == 'DP') {
+    $jumlah_dp = $_POST['jumlah_dp'];
+    if($jumlah_dp != $data_transaksi_lama['jumlah_dp']) {
+      mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                          VALUES ('$id_transaksi', 'DP', '$jumlah_dp', NOW(), 'Update pembayaran DP')");
+    }
+  }
   
   $jumlah_dp = $status_pembayaran == 'DP' ? $_POST['jumlah_dp'] : 0;
   $sisa_pembayaran = $status_pembayaran == 'DP' ? $total_keseluruhan - $jumlah_dp : 0;
@@ -145,6 +194,36 @@ if(isset($_POST['edit_lengkap'])) {
   $jumlah_dp = $status_pembayaran == 'DP' ? (float)$_POST['jumlah_dp'] : 0;
   $sisa_pembayaran = $status_pembayaran == 'DP' ? $total_keseluruhan - $jumlah_dp : 0;
   $status_sewa = $status_pembayaran == 'DP' ? 'Berlangsung' : 'Selesai';
+  
+  // Ambil data transaksi lama untuk menyimpan histori
+  $data_transaksi_lama = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM transaksi WHERE id_transaksi='$id_transaksi'"));
+  
+  // Jika sebelumnya DP dan sekarang Lunas, simpan histori DP
+  if($data_transaksi_lama['status_pembayaran'] == 'DP' && $status_pembayaran == 'Lunas') {
+    // Cek histori DP awal sudah ada atau belum
+    $cek_histori = mysqli_query($conn, "SELECT COUNT(*) as total FROM histori_pembayaran WHERE id_transaksi='$id_transaksi' AND jenis_pembayaran='DP' AND jumlah='".$data_transaksi_lama['jumlah_dp']."'");
+    $histori_ada = mysqli_fetch_assoc($cek_histori);
+    if($histori_ada['total'] == 0) {
+        mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                            VALUES ('$id_transaksi', 'DP', '".$data_transaksi_lama['jumlah_dp']."', NOW(), 'Pembayaran DP awal')");
+    }
+    // Simpan pembayaran pelunasan
+    $jumlah_pelunasan = $data_transaksi_lama['sisa_pembayaran'];
+    mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                        VALUES ('$id_transaksi', 'Pelunasan', '$jumlah_pelunasan', NOW(), 'Pelunasan sisa pembayaran')");
+  }
+  // Jika sebelumnya Lunas dan sekarang DP, simpan histori DP baru
+  else if($data_transaksi_lama['status_pembayaran'] == 'Lunas' && $status_pembayaran == 'DP') {
+    mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                        VALUES ('$id_transaksi', 'DP', '$jumlah_dp', NOW(), 'Pembayaran DP')");
+  }
+  // Jika tetap DP tapi jumlah berubah
+  else if($status_pembayaran == 'DP' && $data_transaksi_lama['status_pembayaran'] == 'DP') {
+    if($jumlah_dp != $data_transaksi_lama['jumlah_dp']) {
+      mysqli_query($conn, "INSERT INTO histori_pembayaran (id_transaksi, jenis_pembayaran, jumlah, tanggal_pembayaran, keterangan) 
+                          VALUES ('$id_transaksi', 'DP', '$jumlah_dp', NOW(), 'Update pembayaran DP')");
+    }
+  }
   
   // Update transaksi
   mysqli_query($conn, "UPDATE transaksi SET 
@@ -1079,6 +1158,15 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <span class="badge bg-gradient-<?= $data['status_pembayaran'] == 'Lunas' ? 'success' : 'info' ?>">
                             <?= $data['status_pembayaran'] ?>
                           </span>
+                          <?php
+                          // Cek apakah ada histori pembayaran
+                          $cek_histori = mysqli_fetch_array(mysqli_query($conn, "SELECT COUNT(*) as total FROM histori_pembayaran WHERE id_transaksi='" . $data['id_transaksi'] . "'"));
+                          if($cek_histori['total'] > 1) {
+                          ?>
+                          <span class="badge bg-gradient-secondary ms-1" title="Ada histori pembayaran">
+                            <i class="fa fa-history"></i>
+                          </span>
+                          <?php } ?>
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -1358,6 +1446,48 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                                   <th>Total Biaya Tambahan</th>
                                   <th class="text-end">Rp <?= number_format($total_biaya_tambahan,0,',','.') ?></th>
                                 </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <?php } ?>
+                        
+                        <!-- Histori Pembayaran -->
+                        <?php
+                        $query_histori = mysqli_query($conn, "SELECT * FROM histori_pembayaran WHERE id_transaksi='" . $data['id_transaksi'] . "' ORDER BY tanggal_pembayaran ASC");
+                        $jumlah_histori = mysqli_num_rows($query_histori);
+                        if($jumlah_histori > 0) {
+                        ?>
+                        <div class="mt-4">
+                          <h6 class="text-primary">Histori Pembayaran</h6>
+                          <div class="table-responsive">
+                            <table class="table table-sm table-hover table-bordered">
+                              <thead class="bg-light">
+                                <tr>
+                                  <th>No</th>
+                                  <th>Tanggal</th>
+                                  <th>Jenis Pembayaran</th>
+                                  <th class="text-end">Jumlah</th>
+                                  <th>Keterangan</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <?php 
+                                $no_histori = 1;
+                                while($histori = mysqli_fetch_array($query_histori)) { 
+                                ?>
+                                <tr>
+                                  <td><?= $no_histori++ ?></td>
+                                  <td><?= date('d/m/Y H:i', strtotime($histori['tanggal_pembayaran'])) ?></td>
+                                  <td>
+                                    <span class="badge bg-gradient-<?= $histori['jenis_pembayaran'] == 'DP' ? 'warning' : ($histori['jenis_pembayaran'] == 'Pelunasan' ? 'success' : 'primary') ?>">
+                                      <?= $histori['jenis_pembayaran'] ?>
+                                    </span>
+                                  </td>
+                                  <td class="text-end">Rp <?= number_format($histori['jumlah'],0,',','.') ?></td>
+                                  <td><?= $histori['keterangan'] ?></td>
+                                </tr>
+                                <?php } ?>
                               </tbody>
                             </table>
                           </div>
