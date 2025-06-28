@@ -76,6 +76,14 @@ if(isset($_GET['hapus'])) {
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="penumpang.php">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa fa-user-plus text-info text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Penumpang</span>
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link active" href="mobil.php">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-car text-success text-sm opacity-10"></i>

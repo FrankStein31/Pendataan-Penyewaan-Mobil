@@ -31,7 +31,7 @@ CREATE TABLE `detail_biaya` (
   KEY `id_tipe` (`id_tipe`),
   CONSTRAINT `detail_biaya_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`),
   CONSTRAINT `detail_biaya_ibfk_2` FOREIGN KEY (`id_tipe`) REFERENCES `tipe_biaya` (`id_tipe`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `detail_biaya` */
 
@@ -76,9 +76,20 @@ insert  into `detail_biaya`(`id_detail`,`id_transaksi`,`id_tipe`,`jumlah`,`creat
 (38,14,3,1500000.00,'2025-06-26 23:04:18'),
 (39,15,1,2000000.00,'2025-06-26 23:04:18'),
 (40,15,3,1500000.00,'2025-06-26 23:04:18'),
-(49,24,1,50000.00,'2025-06-27 02:21:09'),
-(50,24,4,2000.00,'2025-06-27 02:21:09'),
-(51,25,3,400000.00,'2025-06-27 02:23:29');
+(55,26,1,500000.00,'2025-06-27 02:43:53'),
+(56,26,4,20000.00,'2025-06-27 02:43:53'),
+(57,26,7,10000.00,'2025-06-27 02:43:53'),
+(61,27,1,100000.00,'2025-06-27 02:45:31'),
+(62,27,4,2000.00,'2025-06-27 02:45:31'),
+(72,29,1,100000.00,'2025-06-27 12:21:39'),
+(73,29,2,50000.00,'2025-06-27 12:21:39'),
+(74,29,4,5000.00,'2025-06-27 12:21:39'),
+(75,24,1,50000.00,'2025-06-27 12:21:50'),
+(76,24,4,2000.00,'2025-06-27 12:21:50'),
+(84,30,1,50000.00,'2025-06-27 12:38:19'),
+(85,30,2,40000.00,'2025-06-27 12:38:19'),
+(86,30,5,150000.00,'2025-06-27 12:38:19'),
+(87,30,3,400000.00,'2025-06-27 12:38:19');
 
 /*Table structure for table `driver` */
 
@@ -86,14 +97,14 @@ DROP TABLE IF EXISTS `driver`;
 
 CREATE TABLE `driver` (
   `id_driver` int NOT NULL AUTO_INCREMENT,
-  `nama_driver` varchar(100) NOT NULL,
-  `alamat` text,
-  `no_telp` varchar(15) DEFAULT NULL,
-  `no_sim` varchar(20) DEFAULT NULL,
+  `nama_driver` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_sim` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `harga_perhari` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_driver`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `driver` */
 
@@ -111,15 +122,15 @@ DROP TABLE IF EXISTS `mobil`;
 
 CREATE TABLE `mobil` (
   `id_mobil` int NOT NULL AUTO_INCREMENT,
-  `nama_mobil` varchar(100) NOT NULL,
-  `merk` varchar(50) DEFAULT NULL,
+  `nama_mobil` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `merk` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tahun` year DEFAULT NULL,
-  `plat_nomor` varchar(20) DEFAULT NULL,
-  `warna` varchar(30) DEFAULT NULL,
+  `plat_nomor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `warna` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `harga_sewa_perhari` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_mobil`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `mobil` */
 
@@ -137,23 +148,49 @@ DROP TABLE IF EXISTS `penyewa`;
 
 CREATE TABLE `penyewa` (
   `id_penyewa` int NOT NULL AUTO_INCREMENT,
-  `nama_penyewa` varchar(100) NOT NULL,
-  `alamat` text,
-  `no_telp` varchar(15) DEFAULT NULL,
-  `no_ktp` varchar(20) DEFAULT NULL,
+  `nama_penyewa` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_ktp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_penyewa`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `penyewa` */
 
 insert  into `penyewa`(`id_penyewa`,`nama_penyewa`,`alamat`,`no_telp`,`no_ktp`,`created_at`) values 
-(1,'Budi Santoso','Jl. Merdeka No. 123, Jakarta','081234567890','3271234567890001','2025-06-26 23:04:17'),
+(1,'Budi San','Jl. Merdeka No. 123, Jakarta','081234567890','3271234567890001','2025-06-26 23:04:17'),
 (2,'Siti Rahayu','Jl. Sudirman No. 45, Bandung','082345678901','3271234567890002','2025-06-26 23:04:17'),
 (3,'Ahmad Hidayat','Jl. Gatot Subroto No. 67, Surabaya','083456789012','3271234567890003','2025-06-26 23:04:17'),
 (4,'Dewi Lestari','Jl. Diponegoro No. 89, Semarang','084567890123','3271234567890004','2025-06-26 23:04:17'),
 (5,'Rudi Hermawan','Jl. Ahmad Yani No. 12, Yogyakarta','085678901234','3271234567890005','2025-06-26 23:04:17'),
-(6,'Frankie','Medan','08883866931','123123123','2025-06-27 00:17:18');
+(6,'Frankie Steinlie','Medan','08883866931','123123123','2025-06-27 00:17:18'),
+(7,'Coba Penyewa','Coba Penyewa','123','4321','2025-06-27 02:41:39');
+
+/*Table structure for table `penumpang` */
+
+DROP TABLE IF EXISTS `penumpang`;
+
+CREATE TABLE `penumpang` (
+  `id_penumpang` int NOT NULL AUTO_INCREMENT,
+  `nama_penumpang` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_ktp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jenis_kelamin` enum('Laki-laki','Perempuan') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `umur` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_penumpang`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*Data for the table `penumpang` */
+
+insert  into `penumpang`(`id_penumpang`,`nama_penumpang`,`alamat`,`no_telp`,`no_ktp`,`jenis_kelamin`,`umur`,`created_at`) values 
+(1,'Ahmad Rizki','Jl. Sudirman No. 10, Jakarta','081234567891','3271234567890006','Laki-laki',25,'2025-06-26 23:04:17'),
+(2,'Sari Indah','Jl. Thamrin No. 20, Bandung','082345678902','3271234567890007','Perempuan',28,'2025-06-26 23:04:17'),
+(3,'Budi Santoso','Jl. Gatot Subroto No. 30, Surabaya','083456789013','3271234567890008','Laki-laki',32,'2025-06-26 23:04:17'),
+(4,'Dewi Sartika','Jl. Diponegoro No. 40, Semarang','084567890124','3271234567890009','Perempuan',26,'2025-06-26 23:04:17'),
+(5,'Rudi Kurniawan','Jl. Ahmad Yani No. 50, Yogyakarta','085678901235','3271234567890010','Laki-laki',30,'2025-06-26 23:04:17');
 
 /*Table structure for table `tipe_biaya` */
 
@@ -161,10 +198,10 @@ DROP TABLE IF EXISTS `tipe_biaya`;
 
 CREATE TABLE `tipe_biaya` (
   `id_tipe` int NOT NULL AUTO_INCREMENT,
-  `nama_tipe` varchar(50) NOT NULL,
+  `nama_tipe` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_tipe`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `tipe_biaya` */
 
@@ -174,7 +211,7 @@ insert  into `tipe_biaya`(`id_tipe`,`nama_tipe`,`created_at`) values
 (3,'Tol','2025-06-26 23:04:18'),
 (4,'Parkir','2025-06-26 23:04:18'),
 (5,'Penginapan','2025-06-26 23:04:18'),
-(6,'coba','2025-06-27 00:11:53');
+(7,'Pompa Ban','2025-06-27 02:42:29');
 
 /*Table structure for table `transaksi` */
 
@@ -192,10 +229,10 @@ CREATE TABLE `transaksi` (
   `total_biaya_driver` decimal(10,2) DEFAULT '0.00',
   `total_biaya_tambahan` decimal(10,2) DEFAULT '0.00',
   `total_keseluruhan` decimal(10,2) NOT NULL,
-  `status_pembayaran` enum('Lunas','DP') NOT NULL,
+  `status_pembayaran` enum('Lunas','DP') COLLATE utf8mb4_unicode_ci NOT NULL,
   `jumlah_dp` decimal(10,2) DEFAULT '0.00',
   `sisa_pembayaran` decimal(10,2) DEFAULT '0.00',
-  `status_sewa` enum('Berlangsung','Selesai') DEFAULT 'Berlangsung',
+  `status_sewa` enum('Berlangsung','Selesai') COLLATE utf8mb4_unicode_ci DEFAULT 'Berlangsung',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_transaksi`),
   KEY `id_penyewa` (`id_penyewa`),
@@ -204,7 +241,7 @@ CREATE TABLE `transaksi` (
   CONSTRAINT `transaksi_ibfk_1` FOREIGN KEY (`id_penyewa`) REFERENCES `penyewa` (`id_penyewa`),
   CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`id_mobil`) REFERENCES `mobil` (`id_mobil`),
   CONSTRAINT `transaksi_ibfk_3` FOREIGN KEY (`id_driver`) REFERENCES `driver` (`id_driver`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaksi` */
 
@@ -227,10 +264,11 @@ insert  into `transaksi`(`id_transaksi`,`id_penyewa`,`id_mobil`,`id_driver`,`tan
 (16,1,3,NULL,'2025-04-05 10:00:00','2025-04-30 10:00:00',25,7500000.00,0.00,1000000.00,8500000.00,'Lunas',0.00,0.00,'Selesai','2025-06-26 23:04:18'),
 (17,2,4,4,'2025-05-01 09:00:00','2025-06-15 09:00:00',45,15750000.00,6750000.00,2000000.00,24500000.00,'DP',10000000.00,14500000.00,'Berlangsung','2025-06-26 23:04:18'),
 (18,3,5,5,'2025-05-15 08:00:00','2025-06-30 08:00:00',45,16875000.00,6750000.00,2200000.00,25825000.00,'DP',12000000.00,13825000.00,'Berlangsung','2025-06-26 23:04:18'),
-(19,4,1,1,'2025-06-25 11:00:00','2025-08-31 11:00:00',90,31500000.00,13500000.00,3000000.00,48000000.00,'DP',20000000.00,28000000.00,'Berlangsung','2025-06-26 23:04:18'),
-(20,5,2,2,'2025-06-23 13:00:00','2025-09-14 13:00:00',90,36000000.00,13500000.00,3500000.00,53000000.00,'Lunas',0.00,0.00,'Selesai','2025-06-26 23:04:18'),
-(24,3,6,6,'2025-06-27 00:54:00','2025-06-30 00:54:00',3,600000.00,300000.00,52000.00,952000.00,'DP',500000.00,452000.00,'Berlangsung','2025-06-27 00:55:10'),
-(25,6,6,6,'2025-06-27 02:22:00','2025-06-28 02:23:00',1,200000.00,100000.00,400000.00,700000.00,'DP',500000.00,200000.00,'Berlangsung','2025-06-27 02:23:29');
+(24,3,6,6,'2025-06-27 00:54:00','2025-06-30 00:54:00',3,600000.00,300000.00,52000.00,952000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 00:55:10'),
+(26,7,6,2,'2025-06-27 02:42:00','2025-06-30 02:43:00',3,600000.00,450000.00,530000.00,1580000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 02:43:43'),
+(27,1,1,6,'2025-06-27 02:44:00','2025-06-30 02:44:00',3,1050000.00,300000.00,102000.00,1452000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 02:44:31'),
+(29,6,1,6,'2025-06-27 11:31:00','2025-06-30 11:31:00',3,1050000.00,300000.00,155000.00,1505000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 11:32:09'),
+(30,6,6,6,'2025-06-27 12:36:00','2025-06-28 12:36:00',1,200000.00,100000.00,640000.00,940000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 12:37:31');
 
 /*Table structure for table `users` */
 
@@ -238,12 +276,12 @@ DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
   `id_user` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
