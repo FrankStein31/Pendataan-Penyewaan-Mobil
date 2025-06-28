@@ -101,20 +101,19 @@ CREATE TABLE `driver` (
   `alamat` text COLLATE utf8mb4_unicode_ci,
   `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `no_sim` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `harga_perhari` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_driver`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `driver` */
 
-insert  into `driver`(`id_driver`,`nama_driver`,`alamat`,`no_telp`,`no_sim`,`harga_perhari`,`created_at`) values 
-(1,'Joko Widodo','Jl. Melati No. 1, Jakarta','081122334455','SIM-123456',150000.00,'2025-06-26 23:04:17'),
-(2,'Agus Setiawan','Jl. Mawar No. 2, Bandung','082233445566','SIM-234567',150000.00,'2025-06-26 23:04:17'),
-(3,'Dedi Kurniawan','Jl. Anggrek No. 3, Surabaya','083344556677','SIM-345678',150000.00,'2025-06-26 23:04:17'),
-(4,'Eko Prasetyo','Jl. Kenanga No. 4, Semarang','084455667788','SIM-456789',150000.00,'2025-06-26 23:04:17'),
-(5,'Bambang Sutrisno','Jl. Dahlia No. 5, Yogyakarta','085566778899','SIM-567890',150000.00,'2025-06-26 23:04:17'),
-(6,'Agung','Medan','088837119212','123123',100000.00,'2025-06-27 00:19:02');
+insert  into `driver`(`id_driver`,`nama_driver`,`alamat`,`no_telp`,`no_sim`,`created_at`) values 
+(1,'Joko Widodo','Jl. Melati No. 1, Jakarta','081122334455','SIM-123456','2025-06-26 23:04:17'),
+(2,'Agus Setiawan','Jl. Mawar No. 2, Bandung','082233445566','SIM-234567','2025-06-26 23:04:17'),
+(3,'Dedi Kurniawan','Jl. Anggrek No. 3, Surabaya','083344556677','SIM-345678','2025-06-26 23:04:17'),
+(4,'Eko Prasetyo','Jl. Kenanga No. 4, Semarang','084455667788','SIM-456789','2025-06-26 23:04:17'),
+(5,'Bambang Sutrisno','Jl. Dahlia No. 5, Yogyakarta','085566778899','SIM-567890','2025-06-26 23:04:17'),
+(6,'Agung','Medan','088837119212','123123','2025-06-27 00:19:02');
 
 /*Table structure for table `mobil` */
 
@@ -127,20 +126,19 @@ CREATE TABLE `mobil` (
   `tahun` year DEFAULT NULL,
   `plat_nomor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `warna` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `harga_sewa_perhari` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_mobil`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `mobil` */
 
-insert  into `mobil`(`id_mobil`,`nama_mobil`,`merk`,`tahun`,`plat_nomor`,`warna`,`harga_sewa_perhari`,`created_at`) values 
-(1,'Avanza Veloz','Toyota',2022,'B 1234 KLM','Putih',350000.00,'2025-06-26 23:04:17'),
-(2,'Xpander Ultimate','Mitsubishi',2023,'B 2345 LMN','Hitam',400000.00,'2025-06-26 23:04:17'),
-(3,'Brio RS','Honda',2022,'B 3456 MNO','Merah',300000.00,'2025-06-26 23:04:17'),
-(4,'Ertiga Sport','Suzuki',2023,'B 4567 NOP','Silver',350000.00,'2025-06-26 23:04:17'),
-(5,'Rush TRD','Toyota',2022,'B 5678 OPQ','Putih',375000.00,'2025-06-26 23:04:17'),
-(6,'Civic','Honda',2021,'BK 1234 AG','Merah',200000.00,'2025-06-27 00:18:37');
+insert  into `mobil`(`id_mobil`,`nama_mobil`,`merk`,`tahun`,`plat_nomor`,`warna`,`created_at`) values 
+(1,'Avanza Veloz','Toyota',2022,'B 1234 KLM','Putih','2025-06-26 23:04:17'),
+(2,'Xpander Ultimate','Mitsubishi',2023,'B 2345 LMN','Hitam','2025-06-26 23:04:17'),
+(3,'Brio RS','Honda',2022,'B 3456 MNO','Merah','2025-06-26 23:04:17'),
+(4,'Ertiga Sport','Suzuki',2023,'B 4567 NOP','Silver','2025-06-26 23:04:17'),
+(5,'Rush TRD','Toyota',2022,'B 5678 OPQ','Putih','2025-06-26 23:04:17'),
+(6,'Civic','Honda',2021,'BK 1234 AG','Merah','2025-06-27 00:18:37');
 
 /*Table structure for table `penyewa` */
 

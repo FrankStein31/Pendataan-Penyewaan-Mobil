@@ -8,10 +8,9 @@ if(isset($_POST['tambah'])) {
   $tahun = $_POST['tahun'];
   $plat = $_POST['plat'];
   $warna = $_POST['warna'];
-  $harga = $_POST['harga'];
   
-  mysqli_query($conn, "INSERT INTO mobil (nama_mobil, merk, tahun, plat_nomor, warna, harga_sewa_perhari) 
-                      VALUES ('$nama', '$merk', '$tahun', '$plat', '$warna', '$harga')");
+  mysqli_query($conn, "INSERT INTO mobil (nama_mobil, merk, tahun, plat_nomor, warna) 
+                      VALUES ('$nama', '$merk', '$tahun', '$plat', '$warna')");
   header("Location: mobil.php");
 }
 
@@ -22,10 +21,9 @@ if(isset($_POST['edit'])) {
   $tahun = $_POST['tahun'];
   $plat = $_POST['plat'];
   $warna = $_POST['warna'];
-  $harga = $_POST['harga'];
   
   mysqli_query($conn, "UPDATE mobil SET nama_mobil='$nama', merk='$merk', tahun='$tahun', plat_nomor='$plat', 
-                      warna='$warna', harga_sewa_perhari='$harga' WHERE id_mobil='$id'");
+                      warna='$warna' WHERE id_mobil='$id'");
   header("Location: mobil.php");
 }
 
@@ -159,7 +157,6 @@ if(isset($_GET['hapus'])) {
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tahun</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Plat Nomor</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Warna</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Harga/Hari</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                     </tr>
                   </thead>
@@ -193,9 +190,6 @@ if(isset($_GET['hapus'])) {
                       </td>
                       <td>
                         <p class="text-sm font-weight-bold mb-0"><?= $data['warna'] ?></p>
-                      </td>
-                      <td>
-                        <p class="text-sm font-weight-bold mb-0">Rp <?= number_format($data['harga_sewa_perhari'],0,',','.') ?></p>
                       </td>
                       <td>
                         <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?= $data['id_mobil'] ?>">
@@ -237,10 +231,6 @@ if(isset($_GET['hapus'])) {
                               <div class="form-group">
                                 <label>Warna</label>
                                 <input type="text" class="form-control" name="warna" value="<?= $data['warna'] ?>" required>
-                              </div>
-                              <div class="form-group">
-                                <label>Harga Sewa per Hari</label>
-                                <input type="number" class="form-control" name="harga" value="<?= $data['harga_sewa_perhari'] ?>" required>
                               </div>
                             </div>
                             <div class="modal-footer">
@@ -291,10 +281,6 @@ if(isset($_GET['hapus'])) {
             <div class="form-group">
               <label>Warna</label>
               <input type="text" class="form-control" name="warna" required>
-            </div>
-            <div class="form-group">
-              <label>Harga Sewa per Hari</label>
-              <input type="number" class="form-control" name="harga" required>
             </div>
           </div>
           <div class="modal-footer">

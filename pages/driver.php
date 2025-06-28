@@ -7,10 +7,9 @@ if(isset($_POST['tambah'])) {
   $alamat = $_POST['alamat'];
   $no_telp = $_POST['no_telp'];
   $no_sim = $_POST['no_sim'];
-  $harga = $_POST['harga'];
   
-  mysqli_query($conn, "INSERT INTO driver (nama_driver, alamat, no_telp, no_sim, harga_perhari) 
-                      VALUES ('$nama', '$alamat', '$no_telp', '$no_sim', '$harga')");
+  mysqli_query($conn, "INSERT INTO driver (nama_driver, alamat, no_telp, no_sim) 
+                      VALUES ('$nama', '$alamat', '$no_telp', '$no_sim')");
   header("Location: driver.php");
 }
 
@@ -20,10 +19,9 @@ if(isset($_POST['edit'])) {
   $alamat = $_POST['alamat'];
   $no_telp = $_POST['no_telp'];
   $no_sim = $_POST['no_sim'];
-  $harga = $_POST['harga'];
   
   mysqli_query($conn, "UPDATE driver SET nama_driver='$nama', alamat='$alamat', no_telp='$no_telp', 
-                      no_sim='$no_sim', harga_perhari='$harga' WHERE id_driver='$id'");
+                      no_sim='$no_sim' WHERE id_driver='$id'");
   header("Location: driver.php");
 }
 
@@ -156,7 +154,6 @@ if(isset($_GET['hapus'])) {
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Alamat</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">No. Telp</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">No. SIM</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Harga/Hari</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                     </tr>
                   </thead>
@@ -187,9 +184,6 @@ if(isset($_GET['hapus'])) {
                       </td>
                       <td>
                         <p class="text-sm font-weight-bold mb-0"><?= $data['no_sim'] ?></p>
-                      </td>
-                      <td>
-                        <p class="text-sm font-weight-bold mb-0">Rp <?= number_format($data['harga_perhari'],0,',','.') ?></p>
                       </td>
                       <td>
                         <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?= $data['id_driver'] ?>">
@@ -227,10 +221,6 @@ if(isset($_GET['hapus'])) {
                               <div class="form-group">
                                 <label>No. SIM</label>
                                 <input type="text" class="form-control" name="no_sim" value="<?= $data['no_sim'] ?>" required>
-                              </div>
-                              <div class="form-group">
-                                <label>Harga per Hari</label>
-                                <input type="number" class="form-control" name="harga" value="<?= $data['harga_perhari'] ?>" required>
                               </div>
                             </div>
                             <div class="modal-footer">
@@ -277,10 +267,6 @@ if(isset($_GET['hapus'])) {
             <div class="form-group">
               <label>No. SIM</label>
               <input type="text" class="form-control" name="no_sim" required>
-            </div>
-            <div class="form-group">
-              <label>Harga per Hari</label>
-              <input type="number" class="form-control" name="harga" required>
             </div>
           </div>
           <div class="modal-footer">
