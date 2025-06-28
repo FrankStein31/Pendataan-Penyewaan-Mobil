@@ -7,6 +7,8 @@ if(isset($_POST['tambah'])) {
   $id_penyewa = $_POST['id_penyewa'];
   $id_mobil = $_POST['id_mobil'];
   $id_driver = $_POST['id_driver'] != '' ? $_POST['id_driver'] : null;
+  $id_penumpang = $_POST['id_penumpang'] != '' ? $_POST['id_penumpang'] : null;
+  $tujuan_sewa = $_POST['tujuan_sewa'];
   $tanggal_mulai = $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'];
   $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
   
@@ -38,11 +40,11 @@ if(isset($_POST['tambah'])) {
   // Set status sewa berdasarkan status pembayaran
   $status_sewa = $status_pembayaran == 'DP' ? 'Berlangsung' : 'Selesai';
   
-  mysqli_query($conn, "INSERT INTO transaksi (id_penyewa, id_mobil, id_driver, tanggal_mulai, tanggal_selesai, 
+  mysqli_query($conn, "INSERT INTO transaksi (id_penyewa, id_mobil, id_driver, id_penumpang, tujuan_sewa, tanggal_mulai, tanggal_selesai, 
                       total_hari, harga_mobil, harga_driver, total_biaya_tambahan, total_keseluruhan,
                       status_pembayaran, jumlah_dp, sisa_pembayaran, status_sewa) 
-                      VALUES ('$id_penyewa', '$id_mobil', " . ($id_driver ? "'$id_driver'" : "NULL") . ", 
-                      '$tanggal_mulai', '$tanggal_selesai', '$total_hari', '$harga_mobil', '$harga_driver',
+                      VALUES ('$id_penyewa', '$id_mobil', " . ($id_driver ? "'$id_driver'" : "NULL") . ", " . ($id_penumpang ? "'$id_penumpang'" : "NULL") . ", 
+                      '$tujuan_sewa', '$tanggal_mulai', '$tanggal_selesai', '$total_hari', '$harga_mobil', '$harga_driver',
                       '$total_biaya_tambahan', '$total_keseluruhan', '$status_pembayaran', '$jumlah_dp', '$sisa_pembayaran', '$status_sewa')");
   
   $id_transaksi = mysqli_insert_id($conn);
@@ -113,6 +115,8 @@ if(isset($_POST['edit_lengkap'])) {
   $id_penyewa = $_POST['id_penyewa'];
   $id_mobil = $_POST['id_mobil'];
   $id_driver = $_POST['id_driver'] != '' ? $_POST['id_driver'] : null;
+  $id_penumpang = $_POST['id_penumpang'] != '' ? $_POST['id_penumpang'] : null;
+  $tujuan_sewa = $_POST['tujuan_sewa'];
   $tanggal_mulai = $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'];
   $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
   
@@ -147,6 +151,8 @@ if(isset($_POST['edit_lengkap'])) {
                     id_penyewa='$id_penyewa',
                     id_mobil='$id_mobil',
                     id_driver=" . ($id_driver ? "'$id_driver'" : "NULL") . ",
+                    id_penumpang=" . ($id_penumpang ? "'$id_penumpang'" : "NULL") . ",
+                    tujuan_sewa='$tujuan_sewa',
                     tanggal_mulai='$tanggal_mulai',
                     tanggal_selesai='$tanggal_selesai',
                     total_hari='$total_hari',
@@ -513,6 +519,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       const endDate = $('input[name="end_date"]').val();
       const idMobil = $('select[name="id_mobil"]').val();
       const idPenyewa = $('select[name="id_penyewa"]').val();
+      const idPenumpang = $('select[name="id_penumpang"]').val();
       
       // Buat URL dengan parameter
       let url = 'export_transaksi.php?';
@@ -520,6 +527,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       url += '&end_date=' + endDate;
       if(idMobil) url += '&id_mobil=' + idMobil;
       if(idPenyewa) url += '&id_penyewa=' + idPenyewa;
+      if(idPenumpang) url += '&id_penumpang=' + idPenumpang;
       
       window.location.href = url;
     }
@@ -988,6 +996,19 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           ?>
                         </select>
                       </div>
+                      <div class="col-md-2">
+                        <label class="form-label">Penumpang</label>
+                        <select class="form-control select2-filter" name="id_penumpang">
+                          <option value="">Semua Penumpang</option>
+                          <?php
+                          $q_penumpang = mysqli_query($conn, "SELECT * FROM penumpang ORDER BY nama_penumpang");
+                          while($d_penumpang = mysqli_fetch_array($q_penumpang)) {
+                            $selected = (isset($_GET['id_penumpang']) && $_GET['id_penumpang'] == $d_penumpang['id_penumpang']) ? 'selected' : '';
+                            echo "<option value='$d_penumpang[id_penumpang]' $selected>$d_penumpang[nama_penumpang]</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
                       <div class="col-md-2 d-flex align-items-end gap-2">
                         <button type="submit" class="btn btn-primary btn-sm">
                           <i class="fa fa-search me-2"></i>Cari
@@ -996,7 +1017,8 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           (isset($_GET['start_date']) && $_GET['start_date'] != date('Y-m-01')) ||
                           (isset($_GET['end_date']) && $_GET['end_date'] != date('Y-m-t')) ||
                           (isset($_GET['id_mobil']) && $_GET['id_mobil'] != '') ||
-                          (isset($_GET['id_penyewa']) && $_GET['id_penyewa'] != '')
+                          (isset($_GET['id_penyewa']) && $_GET['id_penyewa'] != '') ||
+                          (isset($_GET['id_penumpang']) && $_GET['id_penumpang'] != '')
                         ) { ?>
                         <a href="transaksi.php" class="btn btn-secondary btn-sm">Reset</a>
                         <?php } ?>
@@ -1012,6 +1034,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
                 $id_mobil = isset($_GET['id_mobil']) ? $_GET['id_mobil'] : '';
                 $id_penyewa = isset($_GET['id_penyewa']) ? $_GET['id_penyewa'] : '';
+                $id_penumpang = isset($_GET['id_penumpang']) ? $_GET['id_penumpang'] : '';
 
                 $where = "WHERE 1=1";
                 $where .= " AND DATE(t.tanggal_mulai) BETWEEN '$start_date' AND '$end_date'";
@@ -1021,12 +1044,16 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                 if($id_penyewa != '') {
                   $where .= " AND t.id_penyewa='$id_penyewa'";
                 }
+                if($id_penumpang != '') {
+                  $where .= " AND t.id_penumpang='$id_penumpang'";
+                }
 
-                $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver 
+                $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver, pn.nama_penumpang 
                                               FROM transaksi t 
                                               JOIN penyewa p ON t.id_penyewa=p.id_penyewa
                                               JOIN mobil m ON t.id_mobil=m.id_mobil
                                               LEFT JOIN driver d ON t.id_driver=d.id_driver
+                                              LEFT JOIN penumpang pn ON t.id_penumpang=pn.id_penumpang
                                               $where
                                               ORDER BY t.tanggal_mulai DESC");
                 while($data = mysqli_fetch_array($query)) {
@@ -1043,6 +1070,8 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                         </div>
                         <p class="text-xs mb-1"><i class="fa fa-car text-primary me-1"></i><?= $data['nama_mobil'] ?> - <?= $data['plat_nomor'] ?></p>
                         <p class="text-xs mb-1"><i class="fa fa-id-card text-info me-1"></i><?= $data['nama_driver'] ? $data['nama_driver'] : 'Tanpa Driver' ?></p>
+                        <p class="text-xs mb-1"><i class="fa fa-user-plus text-success me-1"></i><?= $data['nama_penumpang'] ? $data['nama_penumpang'] : 'Tanpa Penumpang' ?></p>
+                        <p class="text-xs mb-1"><i class="fa fa-map-marker text-warning me-1"></i><?= $data['tujuan_sewa'] ?></p>
                         <div class="mt-2">
                           <span class="badge bg-gradient-<?= $data['status_sewa'] == 'Berlangsung' ? 'warning' : 'success' ?> me-1">
                             <?= $data['status_sewa'] ?>
@@ -1241,6 +1270,14 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                                 <strong class="text-dark"><?= $data['nama_driver'] ? $data['nama_driver'] : '-' ?></strong>
                               </li>
                               <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa fa-user-plus fa-fw me-2 text-success"></i>Penumpang</span>
+                                <strong class="text-dark"><?= $data['nama_penumpang'] ? $data['nama_penumpang'] : '-' ?></strong>
+                              </li>
+                              <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa fa-map-marker fa-fw me-2 text-warning"></i>Tujuan Sewa</span>
+                                <strong class="text-dark"><?= $data['tujuan_sewa'] ?></strong>
+                              </li>
+                              <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fa fa-calendar fa-fw me-2 text-primary"></i>Mulai Sewa</span>
                                 <strong class="text-dark"><?= date('d/m/Y H:i', strtotime($data['tanggal_mulai'])) ?></strong>
                               </li>
@@ -1410,6 +1447,22 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <input type="number" class="form-control" name="harga_driver" placeholder="0" value="0">
                         </div>
                       </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Penumpang (Opsional)</label>
+                        <select class="form-control select2" name="id_penumpang">
+                          <option value="">Tanpa Penumpang</option>
+                          <?php
+                          $q_penumpang = mysqli_query($conn, "SELECT * FROM penumpang ORDER BY nama_penumpang");
+                          while($d_penumpang = mysqli_fetch_array($q_penumpang)) {
+                            echo "<option value='$d_penumpang[id_penumpang]'>$d_penumpang[nama_penumpang]</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label">Tujuan Sewa</label>
+                        <textarea class="form-control" name="tujuan_sewa" placeholder="Masukkan tujuan sewa..." required></textarea>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1534,11 +1587,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
   <!-- Modal Edit Lengkap -->
   <?php
   // Reset query untuk modal edit lengkap
-  $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver 
+  $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, m.nama_mobil, m.plat_nomor, d.nama_driver, pn.nama_penumpang 
                                 FROM transaksi t 
                                 JOIN penyewa p ON t.id_penyewa=p.id_penyewa
                                 JOIN mobil m ON t.id_mobil=m.id_mobil
                                 LEFT JOIN driver d ON t.id_driver=d.id_driver
+                                LEFT JOIN penumpang pn ON t.id_penumpang=pn.id_penumpang
                                 $where
                                 ORDER BY t.tanggal_mulai DESC");
   while($data = mysqli_fetch_array($query)) {
@@ -1613,6 +1667,23 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <span class="input-group-text">Rp</span>
                           <input type="number" class="form-control" name="harga_driver" placeholder="0" value="<?= $data['harga_driver'] ?>">
                         </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Penumpang (Opsional)</label>
+                        <select class="form-control select2" name="id_penumpang">
+                          <option value="">Tanpa Penumpang</option>
+                          <?php
+                          $q_penumpang = mysqli_query($conn, "SELECT * FROM penumpang ORDER BY nama_penumpang");
+                          while($d_penumpang = mysqli_fetch_array($q_penumpang)) {
+                            $selected = ($data['id_penumpang'] == $d_penumpang['id_penumpang']) ? 'selected' : '';
+                            echo "<option value='$d_penumpang[id_penumpang]' $selected>$d_penumpang[nama_penumpang]</option>";
+                          }
+                          ?>
+                        </select>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label">Tujuan Sewa</label>
+                        <textarea class="form-control" name="tujuan_sewa" placeholder="Masukkan tujuan sewa..." required><?= $data['tujuan_sewa'] ?></textarea>
                       </div>
                     </div>
                   </div>
