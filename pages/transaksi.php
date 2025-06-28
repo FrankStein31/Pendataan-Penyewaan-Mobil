@@ -16,15 +16,9 @@ if(isset($_POST['tambah'])) {
   $interval = $start->diff($end);
   $total_hari = $interval->days > 0 ? $interval->days : 1;
   
-  // Ambil harga mobil dan driver
-  $mobil = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_sewa_perhari FROM mobil WHERE id_mobil='$id_mobil'"));
-  $total_biaya_mobil = (float)$mobil['harga_sewa_perhari'] * $total_hari;
-  
-  $total_biaya_driver = 0;
-  if($id_driver) {
-    $driver = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_perhari FROM driver WHERE id_driver='$id_driver'"));
-    $total_biaya_driver = (float)$driver['harga_perhari'] * $total_hari;
-  }
+  // Ambil harga mobil dan driver dari input manual
+  $harga_mobil = (float)$_POST['harga_mobil'];
+  $harga_driver = $id_driver ? (float)$_POST['harga_driver'] : 0;
   
   // Hitung total biaya tambahan
   $total_biaya_tambahan = 0;
@@ -36,7 +30,7 @@ if(isset($_POST['tambah'])) {
     }
   }
   
-  $total_keseluruhan = $total_biaya_mobil + $total_biaya_driver + $total_biaya_tambahan;
+  $total_keseluruhan = $harga_mobil + $harga_driver + $total_biaya_tambahan;
   $status_pembayaran = $_POST['status_pembayaran'];
   $jumlah_dp = $status_pembayaran == 'DP' ? (float)$_POST['jumlah_dp'] : 0;
   $sisa_pembayaran = $status_pembayaran == 'DP' ? $total_keseluruhan - $jumlah_dp : 0;
@@ -45,10 +39,10 @@ if(isset($_POST['tambah'])) {
   $status_sewa = $status_pembayaran == 'DP' ? 'Berlangsung' : 'Selesai';
   
   mysqli_query($conn, "INSERT INTO transaksi (id_penyewa, id_mobil, id_driver, tanggal_mulai, tanggal_selesai, 
-                      total_hari, total_biaya_mobil, total_biaya_driver, total_biaya_tambahan, total_keseluruhan,
+                      total_hari, harga_mobil, harga_driver, total_biaya_tambahan, total_keseluruhan,
                       status_pembayaran, jumlah_dp, sisa_pembayaran, status_sewa) 
                       VALUES ('$id_penyewa', '$id_mobil', " . ($id_driver ? "'$id_driver'" : "NULL") . ", 
-                      '$tanggal_mulai', '$tanggal_selesai', '$total_hari', '$total_biaya_mobil', '$total_biaya_driver',
+                      '$tanggal_mulai', '$tanggal_selesai', '$total_hari', '$harga_mobil', '$harga_driver',
                       '$total_biaya_tambahan', '$total_keseluruhan', '$status_pembayaran', '$jumlah_dp', '$sisa_pembayaran', '$status_sewa')");
   
   $id_transaksi = mysqli_insert_id($conn);
@@ -81,8 +75,8 @@ if(isset($_POST['edit'])) {
   }
   
   // Ambil data transaksi
-  $data_transaksi = mysqli_fetch_array(mysqli_query($conn, "SELECT total_biaya_mobil, total_biaya_driver FROM transaksi WHERE id_transaksi='$id_transaksi'"));
-  $total_keseluruhan = $data_transaksi['total_biaya_mobil'] + $data_transaksi['total_biaya_driver'] + $total_biaya_tambahan;
+  $data_transaksi = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_mobil, harga_driver FROM transaksi WHERE id_transaksi='$id_transaksi'"));
+  $total_keseluruhan = $data_transaksi['harga_mobil'] + $data_transaksi['harga_driver'] + $total_biaya_tambahan;
   
   $jumlah_dp = $status_pembayaran == 'DP' ? $_POST['jumlah_dp'] : 0;
   $sisa_pembayaran = $status_pembayaran == 'DP' ? $total_keseluruhan - $jumlah_dp : 0;
@@ -128,15 +122,9 @@ if(isset($_POST['edit_lengkap'])) {
   $interval = $start->diff($end);
   $total_hari = $interval->days > 0 ? $interval->days : 1;
   
-  // Ambil harga mobil dan driver
-  $mobil = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_sewa_perhari FROM mobil WHERE id_mobil='$id_mobil'"));
-  $total_biaya_mobil = (float)$mobil['harga_sewa_perhari'] * $total_hari;
-  
-  $total_biaya_driver = 0;
-  if($id_driver) {
-    $driver = mysqli_fetch_array(mysqli_query($conn, "SELECT harga_perhari FROM driver WHERE id_driver='$id_driver'"));
-    $total_biaya_driver = (float)$driver['harga_perhari'] * $total_hari;
-  }
+  // Ambil harga mobil dan driver dari input manual
+  $harga_mobil = (float)$_POST['harga_mobil'];
+  $harga_driver = $id_driver ? (float)$_POST['harga_driver'] : 0;
   
   // Hitung total biaya tambahan
   $total_biaya_tambahan = 0;
@@ -148,7 +136,7 @@ if(isset($_POST['edit_lengkap'])) {
     }
   }
   
-  $total_keseluruhan = $total_biaya_mobil + $total_biaya_driver + $total_biaya_tambahan;
+  $total_keseluruhan = $harga_mobil + $harga_driver + $total_biaya_tambahan;
   $status_pembayaran = $_POST['status_pembayaran'];
   $jumlah_dp = $status_pembayaran == 'DP' ? (float)$_POST['jumlah_dp'] : 0;
   $sisa_pembayaran = $status_pembayaran == 'DP' ? $total_keseluruhan - $jumlah_dp : 0;
@@ -162,8 +150,8 @@ if(isset($_POST['edit_lengkap'])) {
                     tanggal_mulai='$tanggal_mulai',
                     tanggal_selesai='$tanggal_selesai',
                     total_hari='$total_hari',
-                    total_biaya_mobil='$total_biaya_mobil',
-                    total_biaya_driver='$total_biaya_driver',
+                    harga_mobil='$harga_mobil',
+                    harga_driver='$harga_driver',
                     total_biaya_tambahan='$total_biaya_tambahan',
                     total_keseluruhan='$total_keseluruhan',
                     status_pembayaran='$status_pembayaran',
@@ -284,11 +272,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
 
     function setupEventHandlers() {
       // Event untuk kalkulasi otomatis
-      $('#select-mobil').on('select2:select', function(e) {
-        hitungTotal();
-      });
-
-      $('select[name="id_driver"]').on('select2:select', function() {
+      $('input[name="harga_mobil"], input[name="harga_driver"]').on('input', function() {
         hitungTotal();
       });
 
@@ -320,14 +304,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       });
 
       // Event untuk modal edit lengkap
-      $(document).on('select2:select', '[id^="select-mobil-edit"]', function(e) {
-        const idTransaksi = $(this).attr('id').replace('select-mobil-edit', '');
-        hitungTotalLengkap(idTransaksi);
-      });
-
-      $(document).on('select2:select', '[id^="select-driver-edit"]', function(e) {
-        const idTransaksi = $(this).attr('id').replace('select-driver-edit', '');
-        hitungTotalLengkap(idTransaksi);
+      $(document).on('input', 'input[name="harga_mobil"], input[name="harga_driver"]', function() {
+        const modal = $(this).closest('.modal');
+        if (modal.attr('id').includes('editLengkapModal')) {
+          const idTransaksi = modal.attr('id').replace('editLengkapModal', '');
+          hitungTotalLengkap(idTransaksi);
+        }
       });
 
       $(document).on('change', 'input[name="tanggal_mulai"], input[name="jam_mulai"], input[name="tanggal_selesai"], input[name="jam_selesai"]', function() {
@@ -384,18 +366,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
             }
             $('#estimasi-hari').text(totalHari + ' Hari');
 
-            // --- 2. Hitung Biaya Mobil & Driver ---
-            const selectedMobil = $('#select-mobil').find('option:selected');
-            const selectedDriver = $('select[name="id_driver"]').find('option:selected');
+            // --- 2. Ambil Harga Mobil & Driver dari Input Manual ---
+            const hargaMobil = parseInt($('input[name="harga_mobil"]').val()) || 0;
+            const hargaDriver = parseInt($('input[name="harga_driver"]').val()) || 0;
             
-            const hargaMobil = parseInt(selectedMobil.attr('data-harga')) || 0;
-            const hargaDriver = parseInt(selectedDriver.attr('data-harga')) || 0;
-            
-            const totalMobil = hargaMobil * totalHari;
-            const totalDriver = hargaDriver * totalHari;
-            
-            $('#estimasi-mobil').text('Rp ' + formatRupiah(totalMobil));
-            $('#estimasi-driver').text('Rp ' + formatRupiah(totalDriver));
+            $('#estimasi-mobil').text('Rp ' + formatRupiah(hargaMobil));
+            $('#estimasi-driver').text('Rp ' + formatRupiah(hargaDriver));
 
             // --- 3. Hitung Biaya Tambahan ---
             let totalTambahan = 0;
@@ -406,7 +382,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
             $('#estimasi-tambahan').text('Rp ' + formatRupiah(totalTambahan));
 
             // --- 4. Hitung Total Keseluruhan ---
-            const total = totalMobil + totalDriver + totalTambahan;
+            const total = hargaMobil + hargaDriver + totalTambahan;
             $('#estimasi-total').text('Rp ' + formatRupiah(total));
 
             // --- 5. Hitung Sisa Pembayaran jika DP ---
@@ -521,7 +497,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
       const statusPembayaran = $('select[name="status_pembayaran"]').val();
       if(statusPembayaran === 'DP') {
         const jumlahDp = parseFloat($('input[name="jumlah_dp"]').val()) || 0;
-        const totalKeseluruhan = <?= isset($data) ? $data['total_biaya_mobil'] + $data['total_biaya_driver'] : 0 ?> + totalBiayaTambahan;
+        const totalKeseluruhan = <?= isset($data) ? $data['harga_mobil'] + $data['harga_driver'] : 0 ?> + totalBiayaTambahan;
         const sisaPembayaran = totalKeseluruhan - jumlahDp;
         $('#sisaEdit'+idTransaksi).text('Rp ' + formatRupiah(sisaPembayaran));
       }
@@ -642,18 +618,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
             }
             $('#estimasi-hari-lengkap'+idTransaksi).text(totalHari + ' Hari');
 
-            // --- 2. Hitung Biaya Mobil & Driver ---
-            const selectedMobil = modal.find('#select-mobil-edit'+idTransaksi).find('option:selected');
-            const selectedDriver = modal.find('#select-driver-edit'+idTransaksi).find('option:selected');
+            // --- 2. Ambil Harga Mobil & Driver dari Input Manual ---
+            const hargaMobil = parseInt(modal.find('input[name="harga_mobil"]').val()) || 0;
+            const hargaDriver = parseInt(modal.find('input[name="harga_driver"]').val()) || 0;
             
-            const hargaMobil = parseInt(selectedMobil.attr('data-harga')) || 0;
-            const hargaDriver = parseInt(selectedDriver.attr('data-harga')) || 0;
-            
-            const totalMobil = hargaMobil * totalHari;
-            const totalDriver = hargaDriver * totalHari;
-            
-            $('#estimasi-mobil-lengkap'+idTransaksi).text('Rp ' + formatRupiah(totalMobil));
-            $('#estimasi-driver-lengkap'+idTransaksi).text('Rp ' + formatRupiah(totalDriver));
+            $('#estimasi-mobil-lengkap'+idTransaksi).text('Rp ' + formatRupiah(hargaMobil));
+            $('#estimasi-driver-lengkap'+idTransaksi).text('Rp ' + formatRupiah(hargaDriver));
 
             // --- 3. Hitung Biaya Tambahan ---
             let totalTambahan = 0;
@@ -664,7 +634,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
             $('#estimasi-tambahan-lengkap'+idTransaksi).text('Rp ' + formatRupiah(totalTambahan));
 
             // --- 4. Hitung Total Keseluruhan ---
-            const total = totalMobil + totalDriver + totalTambahan;
+            const total = hargaMobil + hargaDriver + totalTambahan;
             $('#estimasi-total-lengkap'+idTransaksi).text('Rp ' + formatRupiah(total));
 
             // --- 5. Hitung Sisa Pembayaran jika DP ---
@@ -694,15 +664,15 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
     function hitungSisaLengkap(dp, idTransaksi) {
         try {
             const modal = $('#editLengkapModal'+idTransaksi);
-            const totalMobil = parseInt($('#estimasi-mobil-lengkap'+idTransaksi).text().replace(/[^\d]/g, '')) || 0;
-            const totalDriver = parseInt($('#estimasi-driver-lengkap'+idTransaksi).text().replace(/[^\d]/g, '')) || 0;
+            const hargaMobil = parseInt(modal.find('input[name="harga_mobil"]').val()) || 0;
+            const hargaDriver = parseInt(modal.find('input[name="harga_driver"]').val()) || 0;
             
             let totalTambahan = 0;
             modal.find('.biaya-tambahan-lengkap:not(:disabled)').each(function() {
                 totalTambahan += parseInt($(this).val()) || 0;
             });
             
-            const totalKeseluruhan = totalMobil + totalDriver + totalTambahan;
+            const totalKeseluruhan = hargaMobil + hargaDriver + totalTambahan;
             const sisa = totalKeseluruhan - parseFloat(dp);
             
             $('#sisa-pembayaran-lengkap'+idTransaksi).text('Rp ' + formatRupiah(sisa));
@@ -710,6 +680,24 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
             console.error('Error dalam hitungSisaLengkap:', error);
         }
     }
+
+    $(document).on('input', '[id^="jumlah-dp-lengkap"]', function() {
+        const modal = $(this).closest('.modal');
+        if (modal.attr('id').includes('editLengkapModal')) {
+          const idTransaksi = modal.attr('id').replace('editLengkapModal', '');
+          const dp = $(this).val();
+          hitungSisaLengkap(dp, idTransaksi);
+        }
+    });
+
+    $(document).on('change', '[id^="status-pembayaran-lengkap"]', function() {
+        const modal = $(this).closest('.modal');
+        if (modal.attr('id').includes('editLengkapModal')) {
+          const idTransaksi = modal.attr('id').replace('editLengkapModal', '');
+          const value = $(this).val();
+          toggleDPLengkap(value, idTransaksi);
+        }
+    });
   </script>
   
   <style>
@@ -1088,8 +1076,8 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           </div>
                           <h6 class="mb-0">Rincian Biaya</h6>
                         </div>
-                        <p class="text-xs mb-1">Mobil: Rp <?= number_format($data['total_biaya_mobil'],0,',','.') ?></p>
-                        <p class="text-xs mb-1">Driver: Rp <?= number_format($data['total_biaya_driver'],0,',','.') ?></p>
+                        <p class="text-xs mb-1">Mobil: Rp <?= number_format($data['harga_mobil'],0,',','.') ?></p>
+                        <p class="text-xs mb-1">Driver: Rp <?= number_format($data['harga_driver'],0,',','.') ?></p>
                         <p class="text-xs mb-1">Tambahan: Rp <?= number_format($data['total_biaya_tambahan'],0,',','.') ?></p>
                         <p class="text-xs font-weight-bold mb-0">Total: Rp <?= number_format($data['total_keseluruhan'],0,',','.') ?></p>
                         <?php if($data['status_pembayaran'] == 'DP') { ?>
@@ -1271,11 +1259,11 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                             <ul class="list-group">
                               <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Biaya Mobil</span>
-                                <span>Rp <?= number_format($data['total_biaya_mobil'],0,',','.') ?></span>
+                                <span>Rp <?= number_format($data['harga_mobil'],0,',','.') ?></span>
                               </li>
                               <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Biaya Driver</span>
-                                <span>Rp <?= number_format($data['total_biaya_driver'],0,',','.') ?></span>
+                                <span>Rp <?= number_format($data['harga_driver'],0,',','.') ?></span>
                               </li>
                               <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>Biaya Tambahan</span>
@@ -1391,8 +1379,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <?php
                           $query = mysqli_query($conn, "SELECT * FROM mobil ORDER BY nama_mobil");
                           while($data = mysqli_fetch_array($query)) {
-                            $harga = $data['harga_sewa_perhari'];
-                            echo "<option value='$data[id_mobil]' data-harga='$harga'>$data[nama_mobil] - $data[plat_nomor] (Rp " . number_format($harga,0,',','.') . "/hari)</option>";
+                            echo "<option value='$data[id_mobil]'>$data[nama_mobil] - $data[plat_nomor]</option>";
                           }
                           ?>
                         </select>
@@ -1404,10 +1391,24 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <?php
                           $query = mysqli_query($conn, "SELECT * FROM driver ORDER BY nama_driver");
                           while($data = mysqli_fetch_array($query)) {
-                            echo "<option value='$data[id_driver]' data-harga='$data[harga_perhari]'>$data[nama_driver] (Rp " . number_format($data['harga_perhari'],0,',','.') . "/hari)</option>";
+                            echo "<option value='$data[id_driver]'>$data[nama_driver]</option>";
                           }
                           ?>
                         </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Harga Mobil</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" name="harga_mobil" placeholder="0" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Harga Driver (Opsional)</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" name="harga_driver" placeholder="0" value="0">
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1581,8 +1582,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           $q_mobil = mysqli_query($conn, "SELECT * FROM mobil ORDER BY nama_mobil");
                           while($d_mobil = mysqli_fetch_array($q_mobil)) {
                             $selected = ($data['id_mobil'] == $d_mobil['id_mobil']) ? 'selected' : '';
-                            $harga = $d_mobil['harga_sewa_perhari'];
-                            echo "<option value='$d_mobil[id_mobil]' data-harga='$harga' $selected>$d_mobil[nama_mobil] - $d_mobil[plat_nomor] (Rp " . number_format($harga,0,',','.') . "/hari)</option>";
+                            echo "<option value='$d_mobil[id_mobil]' $selected>$d_mobil[nama_mobil] - $d_mobil[plat_nomor]</option>";
                           }
                           ?>
                         </select>
@@ -1595,10 +1595,24 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           $q_driver = mysqli_query($conn, "SELECT * FROM driver ORDER BY nama_driver");
                           while($d_driver = mysqli_fetch_array($q_driver)) {
                             $selected = ($data['id_driver'] == $d_driver['id_driver']) ? 'selected' : '';
-                            echo "<option value='$d_driver[id_driver]' data-harga='$d_driver[harga_perhari]' $selected>$d_driver[nama_driver] (Rp " . number_format($d_driver['harga_perhari'],0,',','.') . "/hari)</option>";
+                            echo "<option value='$d_driver[id_driver]' $selected>$d_driver[nama_driver]</option>";
                           }
                           ?>
                         </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Harga Mobil</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" name="harga_mobil" placeholder="0" value="<?= $data['harga_mobil'] ?>" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Harga Driver (Opsional)</label>
+                        <div class="input-group">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" name="harga_driver" placeholder="0" value="<?= $data['harga_driver'] ?>">
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1673,11 +1687,11 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Biaya Mobil</span>
-                        <strong id="estimasi-mobil-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['total_biaya_mobil'],0,',','.') ?></strong>
+                        <strong id="estimasi-mobil-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['harga_mobil'],0,',','.') ?></strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Biaya Driver</span>
-                        <strong id="estimasi-driver-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['total_biaya_driver'],0,',','.') ?></strong>
+                        <strong id="estimasi-driver-lengkap<?= $data['id_transaksi'] ?>">Rp <?= number_format($data['harga_driver'],0,',','.') ?></strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Biaya Tambahan</span>

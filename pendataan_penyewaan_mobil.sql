@@ -223,8 +223,8 @@ CREATE TABLE `transaksi` (
   `tanggal_mulai` datetime NOT NULL,
   `tanggal_selesai` datetime NOT NULL,
   `total_hari` int NOT NULL,
-  `total_biaya_mobil` decimal(10,2) NOT NULL,
-  `total_biaya_driver` decimal(10,2) DEFAULT '0.00',
+  `harga_mobil` decimal(10,2) NOT NULL,
+  `harga_driver` decimal(10,2) DEFAULT '0.00',
   `total_biaya_tambahan` decimal(10,2) DEFAULT '0.00',
   `total_keseluruhan` decimal(10,2) NOT NULL,
   `status_pembayaran` enum('Lunas','DP') COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -243,7 +243,7 @@ CREATE TABLE `transaksi` (
 
 /*Data for the table `transaksi` */
 
-insert  into `transaksi`(`id_transaksi`,`id_penyewa`,`id_mobil`,`id_driver`,`tanggal_mulai`,`tanggal_selesai`,`total_hari`,`total_biaya_mobil`,`total_biaya_driver`,`total_biaya_tambahan`,`total_keseluruhan`,`status_pembayaran`,`jumlah_dp`,`sisa_pembayaran`,`status_sewa`,`created_at`) values 
+insert  into `transaksi`(`id_transaksi`,`id_penyewa`,`id_mobil`,`id_driver`,`tanggal_mulai`,`tanggal_selesai`,`total_hari`,`harga_mobil`,`harga_driver`,`total_biaya_tambahan`,`total_keseluruhan`,`status_pembayaran`,`jumlah_dp`,`sisa_pembayaran`,`status_sewa`,`created_at`) values 
 (1,1,1,1,'2024-01-01 10:00:00','2024-01-03 10:00:00',2,700000.00,300000.00,100000.00,1100000.00,'Lunas',0.00,0.00,'Selesai','2025-06-26 23:04:18'),
 (2,2,2,2,'2024-01-05 09:00:00','2024-01-07 09:00:00',2,800000.00,300000.00,150000.00,1250000.00,'Lunas',0.00,0.00,'Selesai','2025-06-26 23:04:18'),
 (3,3,3,NULL,'2024-01-10 08:00:00','2024-01-12 08:00:00',2,600000.00,0.00,75000.00,675000.00,'Lunas',0.00,0.00,'Selesai','2025-06-26 23:04:18'),
