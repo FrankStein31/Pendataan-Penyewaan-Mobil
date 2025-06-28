@@ -31,7 +31,7 @@ CREATE TABLE `detail_biaya` (
   KEY `id_tipe` (`id_tipe`),
   CONSTRAINT `detail_biaya_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`),
   CONSTRAINT `detail_biaya_ibfk_2` FOREIGN KEY (`id_tipe`) REFERENCES `tipe_biaya` (`id_tipe`)
-) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `detail_biaya` */
 
@@ -89,26 +89,13 @@ insert  into `detail_biaya`(`id_detail`,`id_transaksi`,`id_tipe`,`jumlah`,`creat
 (84,30,1,50000.00,'2025-06-27 12:38:19'),
 (85,30,2,40000.00,'2025-06-27 12:38:19'),
 (86,30,5,150000.00,'2025-06-27 12:38:19'),
-(87,30,3,400000.00,'2025-06-27 12:38:19');
-
-/*Table structure for table `histori_pembayaran` */
-
-DROP TABLE IF EXISTS `histori_pembayaran`;
-
-CREATE TABLE `histori_pembayaran` (
-  `id_histori` int NOT NULL AUTO_INCREMENT,
-  `id_transaksi` int NOT NULL,
-  `jenis_pembayaran` enum('DP','Pelunasan','Lunas') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `jumlah` decimal(10,2) NOT NULL,
-  `tanggal_pembayaran` datetime NOT NULL,
-  `keterangan` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_histori`),
-  KEY `id_transaksi` (`id_transaksi`),
-  CONSTRAINT `histori_pembayaran_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `histori_pembayaran` */
+(87,30,3,400000.00,'2025-06-27 12:38:19'),
+(103,31,1,100000.00,'2025-06-28 21:35:17'),
+(104,31,4,10000.00,'2025-06-28 21:35:17'),
+(105,31,7,20000.00,'2025-06-28 21:35:17'),
+(106,31,3,400000.00,'2025-06-28 21:35:17'),
+(109,32,1,200000.00,'2025-06-28 21:45:23'),
+(110,32,3,30000.00,'2025-06-28 21:45:23');
 
 /*Table structure for table `driver` */
 
@@ -116,10 +103,10 @@ DROP TABLE IF EXISTS `driver`;
 
 CREATE TABLE `driver` (
   `id_driver` int NOT NULL AUTO_INCREMENT,
-  `nama_driver` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `alamat` text COLLATE utf8mb4_unicode_ci,
-  `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `no_sim` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_driver` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_sim` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_driver`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -134,17 +121,65 @@ insert  into `driver`(`id_driver`,`nama_driver`,`alamat`,`no_telp`,`no_sim`,`cre
 (5,'Bambang Sutrisno','Jl. Dahlia No. 5, Yogyakarta','085566778899','SIM-567890','2025-06-26 23:04:17'),
 (6,'Agung','Medan','088837119212','123123','2025-06-27 00:19:02');
 
+/*Table structure for table `histori_pembayaran` */
+
+DROP TABLE IF EXISTS `histori_pembayaran`;
+
+CREATE TABLE `histori_pembayaran` (
+  `id_histori` int NOT NULL AUTO_INCREMENT,
+  `id_transaksi` int NOT NULL,
+  `jenis_pembayaran` enum('DP','Pelunasan','Lunas') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `jumlah` decimal(10,2) NOT NULL,
+  `tanggal_pembayaran` datetime NOT NULL,
+  `keterangan` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_histori`),
+  KEY `id_transaksi` (`id_transaksi`),
+  CONSTRAINT `histori_pembayaran_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`)
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*Data for the table `histori_pembayaran` */
+
+insert  into `histori_pembayaran`(`id_histori`,`id_transaksi`,`jenis_pembayaran`,`jumlah`,`tanggal_pembayaran`,`keterangan`,`created_at`) values 
+(1,14,'DP',5000000.00,'2025-06-26 23:04:18','Pembayaran DP awal','2025-06-28 21:13:41'),
+(2,15,'DP',8000000.00,'2025-06-26 23:04:18','Pembayaran DP awal','2025-06-28 21:13:41'),
+(3,17,'DP',10000000.00,'2025-06-26 23:04:18','Pembayaran DP awal','2025-06-28 21:13:41'),
+(4,18,'DP',12000000.00,'2025-06-26 23:04:18','Pembayaran DP awal','2025-06-28 21:13:41'),
+(8,1,'Lunas',1100000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(9,2,'Lunas',1250000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(10,3,'Lunas',675000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(11,4,'Lunas',1700000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(12,5,'Lunas',1175000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(13,6,'Lunas',600000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(14,7,'Lunas',2450000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(15,8,'Lunas',2100000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(16,9,'Lunas',3900000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(17,10,'Lunas',4175000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(18,11,'Lunas',6400000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(19,12,'Lunas',6550000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(20,13,'Lunas',11000000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(21,16,'Lunas',8500000.00,'2025-06-26 23:04:18','Pembayaran lunas','2025-06-28 21:13:41'),
+(22,24,'Lunas',952000.00,'2025-06-27 00:55:10','Pembayaran lunas','2025-06-28 21:13:41'),
+(23,26,'Lunas',1580000.00,'2025-06-27 02:43:43','Pembayaran lunas','2025-06-28 21:13:41'),
+(24,27,'Lunas',1452000.00,'2025-06-27 02:44:31','Pembayaran lunas','2025-06-28 21:13:41'),
+(25,29,'Lunas',1505000.00,'2025-06-27 11:32:09','Pembayaran lunas','2025-06-28 21:13:41'),
+(26,30,'Lunas',940000.00,'2025-06-27 12:37:31','Pembayaran lunas','2025-06-28 21:13:41'),
+(42,31,'DP',530000.00,'2025-06-28 21:35:17','Pembayaran DP awal','2025-06-28 21:35:17'),
+(43,31,'Pelunasan',300000.00,'2025-06-28 21:35:17','Pelunasan sisa pembayaran','2025-06-28 21:35:17'),
+(44,32,'DP',230000.00,'2025-06-28 21:44:26','Pembayaran DP awal','2025-06-28 21:44:26'),
+(45,32,'Pelunasan',300000.00,'2025-06-28 21:45:23','Pelunasan sisa pembayaran','2025-06-28 21:45:23');
+
 /*Table structure for table `mobil` */
 
 DROP TABLE IF EXISTS `mobil`;
 
 CREATE TABLE `mobil` (
   `id_mobil` int NOT NULL AUTO_INCREMENT,
-  `nama_mobil` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `merk` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_mobil` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `merk` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tahun` year DEFAULT NULL,
-  `plat_nomor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `warna` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `plat_nomor` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `warna` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_mobil`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -159,16 +194,42 @@ insert  into `mobil`(`id_mobil`,`nama_mobil`,`merk`,`tahun`,`plat_nomor`,`warna`
 (5,'Rush TRD','Toyota',2022,'B 5678 OPQ','Putih','2025-06-26 23:04:17'),
 (6,'Civic','Honda',2021,'BK 1234 AG','Merah','2025-06-27 00:18:37');
 
+/*Table structure for table `penumpang` */
+
+DROP TABLE IF EXISTS `penumpang`;
+
+CREATE TABLE `penumpang` (
+  `id_penumpang` int NOT NULL AUTO_INCREMENT,
+  `nama_penumpang` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_ktp` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jenis_kelamin` enum('Laki-laki','Perempuan') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `umur` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_penumpang`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*Data for the table `penumpang` */
+
+insert  into `penumpang`(`id_penumpang`,`nama_penumpang`,`alamat`,`no_telp`,`no_ktp`,`jenis_kelamin`,`umur`,`created_at`) values 
+(1,'Ahmad Rizki','Jl. Sudirman No. 10, Jakarta','081234567891','3271234567890006','Laki-laki',25,'2025-06-26 23:04:17'),
+(2,'Sari Indah','Jl. Thamrin No. 20, Bandung','082345678902','3271234567890007','Perempuan',28,'2025-06-26 23:04:17'),
+(3,'Budi Santoso','Jl. Gatot Subroto No. 30, Surabaya','083456789013','3271234567890008','Laki-laki',32,'2025-06-26 23:04:17'),
+(4,'Dewi Sartika','Jl. Diponegoro No. 40, Semarang','084567890124','3271234567890009','Perempuan',26,'2025-06-26 23:04:17'),
+(5,'Rudi Kurniawan','Jl. Ahmad Yani No. 50, Yogyakarta','085678901235','3271234567890010','Laki-laki',30,'2025-06-26 23:04:17'),
+(6,'Agung Prasetyo','Jl. Medan Merdeka No. 60, Medan','086789012346','3271234567890011','Laki-laki',27,'2025-06-27 12:45:00');
+
 /*Table structure for table `penyewa` */
 
 DROP TABLE IF EXISTS `penyewa`;
 
 CREATE TABLE `penyewa` (
   `id_penyewa` int NOT NULL AUTO_INCREMENT,
-  `nama_penyewa` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `alamat` text COLLATE utf8mb4_unicode_ci,
-  `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `no_ktp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_penyewa` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alamat` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `no_telp` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_ktp` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_penyewa`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -184,39 +245,13 @@ insert  into `penyewa`(`id_penyewa`,`nama_penyewa`,`alamat`,`no_telp`,`no_ktp`,`
 (6,'Frankie Steinlie','Medan','08883866931','123123123','2025-06-27 00:17:18'),
 (7,'Coba Penyewa','Coba Penyewa','123','4321','2025-06-27 02:41:39');
 
-/*Table structure for table `penumpang` */
-
-DROP TABLE IF EXISTS `penumpang`;
-
-CREATE TABLE `penumpang` (
-  `id_penumpang` int NOT NULL AUTO_INCREMENT,
-  `nama_penumpang` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `alamat` text COLLATE utf8mb4_unicode_ci,
-  `no_telp` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `no_ktp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `jenis_kelamin` enum('Laki-laki','Perempuan') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `umur` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_penumpang`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `penumpang` */
-
-insert  into `penumpang`(`id_penumpang`,`nama_penumpang`,`alamat`,`no_telp`,`no_ktp`,`jenis_kelamin`,`umur`,`created_at`) values 
-(1,'Ahmad Rizki','Jl. Sudirman No. 10, Jakarta','081234567891','3271234567890006','Laki-laki',25,'2025-06-26 23:04:17'),
-(2,'Sari Indah','Jl. Thamrin No. 20, Bandung','082345678902','3271234567890007','Perempuan',28,'2025-06-26 23:04:17'),
-(3,'Budi Santoso','Jl. Gatot Subroto No. 30, Surabaya','083456789013','3271234567890008','Laki-laki',32,'2025-06-26 23:04:17'),
-(4,'Dewi Sartika','Jl. Diponegoro No. 40, Semarang','084567890124','3271234567890009','Perempuan',26,'2025-06-26 23:04:17'),
-(5,'Rudi Kurniawan','Jl. Ahmad Yani No. 50, Yogyakarta','085678901235','3271234567890010','Laki-laki',30,'2025-06-26 23:04:17'),
-(6,'Agung Prasetyo','Jl. Medan Merdeka No. 60, Medan','086789012346','3271234567890011','Laki-laki',27,'2025-06-27 12:45:00');
-
 /*Table structure for table `tipe_biaya` */
 
 DROP TABLE IF EXISTS `tipe_biaya`;
 
 CREATE TABLE `tipe_biaya` (
   `id_tipe` int NOT NULL AUTO_INCREMENT,
-  `nama_tipe` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama_tipe` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_tipe`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -241,7 +276,7 @@ CREATE TABLE `transaksi` (
   `id_mobil` int NOT NULL,
   `id_driver` int DEFAULT NULL,
   `id_penumpang` int DEFAULT NULL,
-  `tujuan_sewa` text COLLATE utf8mb4_unicode_ci,
+  `tujuan_sewa` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `tanggal_mulai` datetime NOT NULL,
   `tanggal_selesai` datetime NOT NULL,
   `total_hari` int NOT NULL,
@@ -249,10 +284,10 @@ CREATE TABLE `transaksi` (
   `harga_driver` decimal(10,2) DEFAULT '0.00',
   `total_biaya_tambahan` decimal(10,2) DEFAULT '0.00',
   `total_keseluruhan` decimal(10,2) NOT NULL,
-  `status_pembayaran` enum('Lunas','DP') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status_pembayaran` enum('Lunas','DP') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `jumlah_dp` decimal(10,2) DEFAULT '0.00',
   `sisa_pembayaran` decimal(10,2) DEFAULT '0.00',
-  `status_sewa` enum('Berlangsung','Selesai') COLLATE utf8mb4_unicode_ci DEFAULT 'Berlangsung',
+  `status_sewa` enum('Berlangsung','Selesai') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Berlangsung',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_transaksi`),
   KEY `id_penyewa` (`id_penyewa`),
@@ -263,7 +298,7 @@ CREATE TABLE `transaksi` (
   CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`id_mobil`) REFERENCES `mobil` (`id_mobil`),
   CONSTRAINT `transaksi_ibfk_3` FOREIGN KEY (`id_driver`) REFERENCES `driver` (`id_driver`),
   CONSTRAINT `transaksi_ibfk_4` FOREIGN KEY (`id_penumpang`) REFERENCES `penumpang` (`id_penumpang`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaksi` */
 
@@ -290,7 +325,9 @@ insert  into `transaksi`(`id_transaksi`,`id_penyewa`,`id_mobil`,`id_driver`,`id_
 (26,7,6,2,2,'Medan','2025-06-27 02:42:00','2025-06-30 02:43:00',3,600000.00,450000.00,530000.00,1580000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 02:43:43'),
 (27,1,1,6,6,'Jakarta','2025-06-27 02:44:00','2025-06-30 02:44:00',3,1050000.00,300000.00,102000.00,1452000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 02:44:31'),
 (29,6,1,6,6,'Surabaya','2025-06-27 11:31:00','2025-06-30 11:31:00',3,1050000.00,300000.00,155000.00,1505000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 11:32:09'),
-(30,6,6,6,6,'Medan','2025-06-27 12:36:00','2025-06-28 12:36:00',1,200000.00,100000.00,640000.00,940000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 12:37:31');
+(30,6,6,6,6,'Medan','2025-06-27 12:36:00','2025-06-28 12:36:00',1,200000.00,100000.00,640000.00,940000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 12:37:31'),
+(31,6,6,6,5,'Kemana gitu','2025-06-28 19:56:00','2025-06-30 19:56:00',2,200000.00,100000.00,530000.00,830000.00,'Lunas',0.00,0.00,'Selesai','2025-06-28 19:57:02'),
+(32,3,1,6,6,'wasd','2025-06-28 21:43:00','2025-06-30 21:44:00',2,200000.00,100000.00,230000.00,530000.00,'Lunas',0.00,0.00,'Selesai','2025-06-28 21:44:26');
 
 /*Table structure for table `users` */
 
@@ -298,8 +335,8 @@ DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
   `id_user` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `username` (`username`)
