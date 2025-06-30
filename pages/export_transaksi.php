@@ -38,6 +38,14 @@ $query = mysqli_query($conn, "SELECT t.*, p.nama_penyewa, p.no_telp, m.nama_mobi
 $data_transaksi = [];
 $total_pendapatan = 0;
 while($data = mysqli_fetch_array($query)) {
+  // Ambil history pembayaran
+  $query_pembayaran = mysqli_query($conn, "SELECT * FROM histori_pembayaran WHERE id_transaksi='".$data['id_transaksi']."' ORDER BY tanggal_pembayaran ASC");
+  $arr_pembayaran = [];
+  while($pembayaran = mysqli_fetch_array($query_pembayaran)) {
+    $arr_pembayaran[] = date('d/m/Y', strtotime($pembayaran['tanggal_pembayaran'])).': Rp '.number_format($pembayaran['jumlah'],0,',','.');
+  }
+  $data['history_pembayaran'] = $arr_pembayaran;
+  
   $data_transaksi[] = $data;
   $total_pendapatan += $data['total_keseluruhan'];
 }
@@ -133,6 +141,12 @@ while($data = mysqli_fetch_array($query)) {
       <div style="font-weight: bold;"><?= $data['status_pembayaran'] ?></div>
       <?php if($data['status_pembayaran'] == 'DP') { ?>
       <div style="font-size: 9px; color: #D32F2F;">Sisa: Rp <?= number_format($data['sisa_pembayaran'],0,',','.') ?></div>
+      <?php } ?>
+      <?php if(!empty($data['history_pembayaran'])) { ?>
+      <div style="font-size: 9px; color: #1976D2; margin-top: 3px;">History Pembayaran:</div>
+      <?php foreach($data['history_pembayaran'] as $pembayaran) { ?>
+      <div style="font-size: 9px;"><?= $pembayaran ?></div>
+      <?php } ?>
       <?php } ?>
     </td>
     <td><?= $biaya_tambahan_str ?></td>
