@@ -13,8 +13,8 @@ if(isset($_POST['tambah'])) {
   $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
   
   // Input manual untuk total hari dan day
-  $total_hari = $_POST['total_hari'];
-  $day = (int)$_POST['day'];
+  $total_hari = $_POST['total_hari'] != '' ? $_POST['total_hari'] : '-';
+  $day = $_POST['day'] != '' ? (int)$_POST['day'] : 0;
   
   // Ambil harga mobil dan driver dari input manual
   $harga_mobil = (float)$_POST['harga_mobil'];
@@ -168,8 +168,8 @@ if(isset($_POST['edit_lengkap'])) {
   $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
   
   // Input manual untuk total hari dan day
-  $total_hari = $_POST['total_hari'];
-  $day = (int)$_POST['day'];
+  $total_hari = $_POST['total_hari'] != '' ? $_POST['total_hari'] : '-';
+  $day = $_POST['day'] != '' ? (int)$_POST['day'] : 0;
   
   // Ambil harga mobil dan driver dari input manual
   $harga_mobil = (float)$_POST['harga_mobil'];
@@ -258,16 +258,19 @@ if(isset($_POST['edit_lengkap'])) {
 }
 
 // PHP logic for deleting a transaction
-if(isset($_POST['hapus'])) {
-  $id_transaksi = $_POST['id_transaksi'];
+if(isset($_GET['hapus'])) {
+  $id_transaksi = $_GET['hapus'];
   
-  // Hapus detail biaya terlebih dahulu
+  // Hapus histori pembayaran terlebih dahulu
+  mysqli_query($conn, "DELETE FROM histori_pembayaran WHERE id_transaksi='$id_transaksi'");
+  
+  // Hapus detail biaya
   mysqli_query($conn, "DELETE FROM detail_biaya WHERE id_transaksi='$id_transaksi'");
   
-  // Kemudian hapus transaksi
+  // Baru hapus transaksi
   mysqli_query($conn, "DELETE FROM transaksi WHERE id_transaksi='$id_transaksi'");
   
-  header("Location: transaksi.php");
+  echo "<script>alert('Data berhasil dihapus!');window.location='transaksi.php';</script>";
 }
 
 // PHP logic for finishing a transaction (No changes needed here)
@@ -1179,12 +1182,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                         <p class="text-xs mb-1">
                           <i class="fa fa-calendar-check-o text-danger me-1"></i>Selesai: <?= date('d/m/Y H:i', strtotime($data['tanggal_selesai'])) ?>
                         </p>
-                        <p class="text-xs mb-0">
-                          <i class="fa fa-clock-o text-warning me-1"></i>Total Hari: <?= $data['total_hari'] ?>
+                        <!-- <p class="text-xs mb-0">
+                          <i class="fa fa-clock-o text-warning me-1"></i>Hari: <?= $data['total_hari'] ?>
                         </p>
                         <p class="text-xs mb-0">
                           <i class="fa fa-clock-o text-warning me-1"></i>Day: <?= $data['day'] ?>
-                        </p>
+                        </p> -->
                       </div>
                       <div class="col-md-3">
                         <div class="d-flex align-items-center mb-2">
@@ -1212,13 +1215,9 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <button class="btn btn-primary btn-sm mb-1" data-bs-toggle="modal" data-bs-target="#editLengkapModal<?= $data['id_transaksi'] ?>">
                             <i class="fa fa-cogs"></i>
                           </button>
-                          <button class="btn btn-danger btn-sm" onclick="if(confirm('Hapus transaksi ini?')) { document.getElementById('formHapus<?= $data['id_transaksi'] ?>').submit(); }">
+                          <button class="btn btn-danger btn-sm" onclick="if(confirm('Hapus transaksi ini?')) { window.location='transaksi.php?hapus=<?= $data['id_transaksi'] ?>'; }">
                             <i class="fa fa-trash"></i>
                           </button>
-                          <form id="formHapus<?= $data['id_transaksi'] ?>" action="" method="POST">
-                            <input type="hidden" name="id_transaksi" value="<?= $data['id_transaksi'] ?>">
-                            <input type="hidden" name="hapus" value="1">
-                          </form>
                         </div>
                       </div>
                     </div>
@@ -1373,10 +1372,10 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                                 <span><i class="fa fa-calendar-check-o fa-fw me-2 text-danger"></i>Selesai Sewa</span>
                                 <strong class="text-dark"><?= date('d/m/Y H:i', strtotime($data['tanggal_selesai'])) ?></strong>
                               </li>
-                              <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span><i class="fa fa-clock-o fa-fw me-2 text-secondary"></i>Total Hari</span>
-                                <strong class="text-dark"><?= $data['total_hari'] ?> hari</strong>
-                              </li>
+                              <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa fa-clock-o fa-fw me-2 text-secondary"></i>Hari</span>
+                                <strong class="text-dark"><?= $data['total_hari'] ?></strong>
+                              </li> -->
                             </ul>
                           </div>
                           <div class="col-md-6">
@@ -1616,12 +1615,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                         </div>
                       </div>
                       <div class="col-md-6">
-                        <label class="form-label">Total Hari (Manual)</label>
-                        <input type="text" class="form-control" name="total_hari" placeholder="Contoh: 3 Hari" required>
+                        <label class="form-label">Hari</label>
+                        <input type="text" class="form-control" name="total_hari" placeholder="-">
                       </div>
                       <div class="col-md-6">
                         <label class="form-label">Day (Angka)</label>
-                        <input type="number" class="form-control" name="day" placeholder="Contoh: 3" min="1" required>
+                        <input type="number" class="form-control" name="day" placeholder="0" min="0">
                       </div>
                     </div>
                   </div>
@@ -1846,12 +1845,12 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                         </div>
                       </div>
                       <div class="col-md-6">
-                        <label class="form-label">Total Hari (Manual)</label>
-                        <input type="text" class="form-control" name="total_hari" value="<?= $data['total_hari'] ?>" required>
+                        <label class="form-label">Hari</label>
+                        <input type="text" class="form-control" name="total_hari" value="<?= $data['total_hari'] ?>" placeholder="-">
                       </div>
                       <div class="col-md-6">
                         <label class="form-label">Day (Angka)</label>
-                        <input type="number" class="form-control" name="day" value="<?= $data['day'] ?>" min="1" required>
+                        <input type="number" class="form-control" name="day" value="<?= $data['day'] ?>" placeholder="0" min="0">
                       </div>
                     </div>
                   </div>
@@ -1900,7 +1899,7 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                     <ul class="list-group mb-4">
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Lama Sewa</span>
-                        <strong id="estimasi-hari-lengkap<?= $data['id_transaksi'] ?>"><?= $data['total_hari'] ?> Hari</strong>
+                        <strong id="estimasi-hari-lengkap<?= $data['id_transaksi'] ?>"><?= $data['total_hari'] ?></strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span>Biaya Mobil</span>

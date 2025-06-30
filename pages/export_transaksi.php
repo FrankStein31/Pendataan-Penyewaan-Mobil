@@ -107,6 +107,7 @@ while($data = mysqli_fetch_array($query)) {
     <td>Day</td>
     <td>Biaya Mobil</td>
     <td>Biaya Driver</td>
+    <td>Biaya Tambahan</td>
     <td>Total</td>
     <td>Status</td>
     <td>Rincian Biaya</td>
@@ -136,6 +137,7 @@ while($data = mysqli_fetch_array($query)) {
     <td class="text-center"><?= $data['day'] ?></td>
     <td class="text-right">Rp <?= number_format($data['harga_mobil'],0,',','.') ?></td>
     <td class="text-right">Rp <?= number_format($data['harga_driver'],0,',','.') ?></td>
+    <td class="text-right">Rp <?= number_format($data['total_biaya_tambahan'],0,',','.') ?></td>
     <td class="text-right text-bold">Rp <?= number_format($data['total_keseluruhan'],0,',','.') ?></td>
     <td class="text-center <?= $status_class ?>">
       <div style="font-weight: bold;"><?= $data['status_pembayaran'] ?></div>
@@ -157,6 +159,7 @@ while($data = mysqli_fetch_array($query)) {
     <td colspan="10" class="text-center text-bold">TOTAL</td>
     <td class="text-right text-bold">Rp <?= number_format(array_sum(array_column($data_transaksi, 'harga_mobil')),0,',','.') ?></td>
     <td class="text-right text-bold">Rp <?= number_format(array_sum(array_column($data_transaksi, 'harga_driver')),0,',','.') ?></td>
+    <td class="text-right text-bold">Rp <?= number_format(array_sum(array_column($data_transaksi, 'total_biaya_tambahan')),0,',','.') ?></td>
     <td class="text-right text-bold">Rp <?= number_format($total_pendapatan,0,',','.') ?></td>
     <td colspan="2"></td>
   </tr>

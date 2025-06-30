@@ -31,7 +31,7 @@ CREATE TABLE `detail_biaya` (
   KEY `id_tipe` (`id_tipe`),
   CONSTRAINT `detail_biaya_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`),
   CONSTRAINT `detail_biaya_ibfk_2` FOREIGN KEY (`id_tipe`) REFERENCES `tipe_biaya` (`id_tipe`)
-) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `detail_biaya` */
 
@@ -96,8 +96,9 @@ insert  into `detail_biaya`(`id_detail`,`id_transaksi`,`id_tipe`,`jumlah`,`creat
 (106,31,3,400000.00,'2025-06-28 21:35:17'),
 (109,32,1,200000.00,'2025-06-28 21:45:23'),
 (110,32,3,30000.00,'2025-06-28 21:45:23'),
-(117,33,1,10000.00,'2025-06-30 12:58:39'),
-(118,33,4,20000.00,'2025-06-30 12:58:39');
+(119,33,1,10000.00,'2025-06-30 14:09:18'),
+(120,33,4,20000.00,'2025-06-30 14:09:18'),
+(124,36,1,300000.00,'2025-06-30 14:27:56');
 
 /*Table structure for table `driver` */
 
@@ -138,7 +139,7 @@ CREATE TABLE `histori_pembayaran` (
   PRIMARY KEY (`id_histori`),
   KEY `id_transaksi` (`id_transaksi`),
   CONSTRAINT `histori_pembayaran_ibfk_1` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `histori_pembayaran` */
 
@@ -170,7 +171,8 @@ insert  into `histori_pembayaran`(`id_histori`,`id_transaksi`,`jenis_pembayaran`
 (43,31,'Pelunasan',300000.00,'2025-06-28 21:35:17','Pelunasan sisa pembayaran','2025-06-28 21:35:17'),
 (44,32,'DP',230000.00,'2025-06-28 21:44:26','Pembayaran DP awal','2025-06-28 21:44:26'),
 (45,32,'Pelunasan',300000.00,'2025-06-28 21:45:23','Pelunasan sisa pembayaran','2025-06-28 21:45:23'),
-(46,33,'DP',180000.00,'2025-06-30 12:47:52','Pembayaran DP awal','2025-06-30 12:47:52');
+(46,33,'DP',180000.00,'2025-06-30 12:47:52','Pembayaran DP awal','2025-06-30 12:47:52'),
+(49,36,'DP',150000.00,'2025-06-30 14:27:44','Pembayaran DP awal','2025-06-30 14:27:44');
 
 /*Table structure for table `mobil` */
 
@@ -282,8 +284,8 @@ CREATE TABLE `transaksi` (
   `tujuan_sewa` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `tanggal_mulai` datetime NOT NULL,
   `tanggal_selesai` datetime NOT NULL,
-  `total_hari` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `day` int NOT NULL,
+  `total_hari` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '-',
+  `day` int NOT NULL DEFAULT '0',
   `harga_mobil` decimal(10,2) NOT NULL,
   `harga_driver` decimal(10,2) DEFAULT '0.00',
   `total_biaya_tambahan` decimal(10,2) DEFAULT '0.00',
@@ -302,7 +304,7 @@ CREATE TABLE `transaksi` (
   CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`id_mobil`) REFERENCES `mobil` (`id_mobil`),
   CONSTRAINT `transaksi_ibfk_3` FOREIGN KEY (`id_driver`) REFERENCES `driver` (`id_driver`),
   CONSTRAINT `transaksi_ibfk_4` FOREIGN KEY (`id_penumpang`) REFERENCES `penumpang` (`id_penumpang`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaksi` */
 
@@ -332,7 +334,8 @@ insert  into `transaksi`(`id_transaksi`,`id_penyewa`,`id_mobil`,`id_driver`,`id_
 (30,6,6,6,6,'Medan','2025-06-27 12:36:00','2025-06-28 12:36:00','1 Hari',1,200000.00,100000.00,640000.00,940000.00,'Lunas',0.00,0.00,'Selesai','2025-06-27 12:37:31'),
 (31,6,6,6,5,'Kemana gitu','2025-06-28 19:56:00','2025-06-30 19:56:00','2 Hari',2,200000.00,100000.00,530000.00,830000.00,'Lunas',0.00,0.00,'Selesai','2025-06-28 19:57:02'),
 (32,3,1,6,6,'wasd','2025-06-28 21:43:00','2025-06-30 21:44:00','2 Hari',2,200000.00,100000.00,230000.00,530000.00,'Lunas',0.00,0.00,'Selesai','2025-06-28 21:44:26'),
-(33,6,6,6,6,'wasdwasdwasd','2025-06-30 12:47:00','2025-07-01 12:49:00','dua setengah hari',3,200000.00,100000.00,30000.00,330000.00,'DP',180000.00,150000.00,'Berlangsung','2025-06-30 12:47:52');
+(33,6,6,6,6,'wasdwasdwasd','2025-06-30 12:47:00','2025-07-01 12:49:00','',0,200000.00,100000.00,30000.00,330000.00,'DP',180000.00,150000.00,'Berlangsung','2025-06-30 12:47:52'),
+(36,3,1,6,6,'wasd','2025-06-30 14:27:00','2025-07-02 14:28:00','hari',0,30000.00,40000.00,300000.00,370000.00,'DP',150000.00,220000.00,'Berlangsung','2025-06-30 14:27:44');
 
 /*Table structure for table `users` */
 
