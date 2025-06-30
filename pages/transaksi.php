@@ -12,11 +12,9 @@ if(isset($_POST['tambah'])) {
   $tanggal_mulai = $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'];
   $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
   
-  // Hitung total hari
-  $start = new DateTime($tanggal_mulai);
-  $end = new DateTime($tanggal_selesai);
-  $interval = $start->diff($end);
-  $total_hari = $interval->days > 0 ? $interval->days : 1;
+  // Input manual untuk total hari dan day
+  $total_hari = $_POST['total_hari'];
+  $day = (int)$_POST['day'];
   
   // Ambil harga mobil dan driver dari input manual
   $harga_mobil = (float)$_POST['harga_mobil'];
@@ -41,10 +39,10 @@ if(isset($_POST['tambah'])) {
   $status_sewa = $status_pembayaran == 'DP' ? 'Berlangsung' : 'Selesai';
   
   mysqli_query($conn, "INSERT INTO transaksi (id_penyewa, id_mobil, id_driver, id_penumpang, tujuan_sewa, tanggal_mulai, tanggal_selesai, 
-                      total_hari, harga_mobil, harga_driver, total_biaya_tambahan, total_keseluruhan,
+                      total_hari, day, harga_mobil, harga_driver, total_biaya_tambahan, total_keseluruhan,
                       status_pembayaran, jumlah_dp, sisa_pembayaran, status_sewa) 
                       VALUES ('$id_penyewa', '$id_mobil', " . ($id_driver ? "'$id_driver'" : "NULL") . ", " . ($id_penumpang ? "'$id_penumpang'" : "NULL") . ", 
-                      '$tujuan_sewa', '$tanggal_mulai', '$tanggal_selesai', '$total_hari', '$harga_mobil', '$harga_driver',
+                      '$tujuan_sewa', '$tanggal_mulai', '$tanggal_selesai', '$total_hari', '$day', '$harga_mobil', '$harga_driver',
                       '$total_biaya_tambahan', '$total_keseluruhan', '$status_pembayaran', '$jumlah_dp', '$sisa_pembayaran', '$status_sewa')");
   
   $id_transaksi = mysqli_insert_id($conn);
@@ -169,11 +167,9 @@ if(isset($_POST['edit_lengkap'])) {
   $tanggal_mulai = $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'];
   $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'];
   
-  // Hitung total hari
-  $start = new DateTime($tanggal_mulai);
-  $end = new DateTime($tanggal_selesai);
-  $interval = $start->diff($end);
-  $total_hari = $interval->days > 0 ? $interval->days : 1;
+  // Input manual untuk total hari dan day
+  $total_hari = $_POST['total_hari'];
+  $day = (int)$_POST['day'];
   
   // Ambil harga mobil dan driver dari input manual
   $harga_mobil = (float)$_POST['harga_mobil'];
@@ -235,6 +231,7 @@ if(isset($_POST['edit_lengkap'])) {
                     tanggal_mulai='$tanggal_mulai',
                     tanggal_selesai='$tanggal_selesai',
                     total_hari='$total_hari',
+                    day='$day',
                     harga_mobil='$harga_mobil',
                     harga_driver='$harga_driver',
                     total_biaya_tambahan='$total_biaya_tambahan',
@@ -1183,7 +1180,10 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <i class="fa fa-calendar-check-o text-danger me-1"></i>Selesai: <?= date('d/m/Y H:i', strtotime($data['tanggal_selesai'])) ?>
                         </p>
                         <p class="text-xs mb-0">
-                          <i class="fa fa-clock-o text-warning me-1"></i>Total: <?= $data['total_hari'] ?> hari
+                          <i class="fa fa-clock-o text-warning me-1"></i>Total Hari: <?= $data['total_hari'] ?>
+                        </p>
+                        <p class="text-xs mb-0">
+                          <i class="fa fa-clock-o text-warning me-1"></i>Day: <?= $data['day'] ?>
                         </p>
                       </div>
                       <div class="col-md-3">
@@ -1615,6 +1615,14 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <input type="time" class="form-control" name="jam_selesai" onchange="hitungTotal()" required>
                         </div>
                       </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Total Hari (Manual)</label>
+                        <input type="text" class="form-control" name="total_hari" placeholder="Contoh: 3 Hari" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Day (Angka)</label>
+                        <input type="number" class="form-control" name="day" placeholder="Contoh: 3" min="1" required>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1836,6 +1844,14 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                           <input type="date" class="form-control" name="tanggal_selesai" value="<?= date('Y-m-d', strtotime($data['tanggal_selesai'])) ?>" required>
                           <input type="time" class="form-control" name="jam_selesai" value="<?= date('H:i', strtotime($data['tanggal_selesai'])) ?>" required>
                         </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Total Hari (Manual)</label>
+                        <input type="text" class="form-control" name="total_hari" value="<?= $data['total_hari'] ?>" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Day (Angka)</label>
+                        <input type="number" class="form-control" name="day" value="<?= $data['day'] ?>" min="1" required>
                       </div>
                     </div>
                   </div>
