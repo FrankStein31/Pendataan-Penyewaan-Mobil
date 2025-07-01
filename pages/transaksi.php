@@ -1,5 +1,6 @@
 <?php
 include '../koneksi/koneksi.php';
+date_default_timezone_set('Asia/Jakarta');
 session_start();
 
 // PHP logic for adding a transaction (No changes needed here, it's already solid)
@@ -310,7 +311,16 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
   <script>
     // Tunggu sampai dokumen siap
     $(document).ready(function() {
-      // Inisialisasi Select2 untuk dropdown di modal tambah
+      // Update waktu setiap detik
+      setInterval(function() {
+        var now = new Date();
+        var hours = String(now.getHours()).padStart(2, '0');
+        var minutes = String(now.getMinutes()).padStart(2, '0');
+        var seconds = String(now.getSeconds()).padStart(2, '0');
+        $('.text-primary.mb-0').text(hours + ':' + minutes + ':' + seconds + ' WIB');
+      }, 1000);
+      
+      // Inisialisasi Select2
       initSelect2();
       
       // Setup event handlers
@@ -1019,8 +1029,25 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
             </div>
             <div class="card-body px-0 pt-0 pb-2">
               <div class="p-4">
+                <!-- Waktu dan Tanggal -->
                 <div class="row mb-4">
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-3 mb-2">
+                    <div class="card shadow-sm">
+                      <div class="card-body text-center">
+                        <div class="text-xs text-muted mb-1">Waktu Saat Ini</div>
+                        <h3 class="text-primary mb-0"><?= date('H:i:s') ?> WIB</h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 mb-2">
+                    <div class="card shadow-sm">
+                      <div class="card-body text-center">
+                        <div class="text-xs text-muted mb-1">Tanggal</div>
+                        <h3 class="text-danger mb-0"><?= date('d F Y') ?></h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 mb-2">
                     <div class="card shadow-sm">
                       <div class="card-body text-center">
                         <div class="text-xs text-muted mb-1">Total Pendapatan Hari Ini</div>
@@ -1028,11 +1055,11 @@ $dataPendapatanBulanIni = mysqli_fetch_assoc($qPendapatanBulanIni);
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-6 mb-2">
+                  <div class="col-md-3 mb-2">
                     <div class="card shadow-sm">
                       <div class="card-body text-center">
                         <div class="text-xs text-muted mb-1">Total Pendapatan Bulan Ini</div>
-                        <h3 class="text-primary mb-0">Rp <?= number_format($dataPendapatanBulanIni['total'] ?? 0,0,',','.') ?></h3>
+                        <h3 class="text-info mb-0">Rp <?= number_format($dataPendapatanBulanIni['total'] ?? 0,0,',','.') ?></h3>
                       </div>
                     </div>
                   </div>
